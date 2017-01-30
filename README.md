@@ -11,8 +11,11 @@ Each obstacle is in its own column and can move only up and down. This way, the 
 No collision is tested between obtacles. Only between hero/obstacle (and fire/obtacle if we add the ability to fire on obstacles).
 
 Columns are stored in a fixed-length array where new columns will override old ones.
-But to prevent any memory allocation during animation, all the columns are created just once and they have this structure:
+But to prevent any memory allocation during animation, all the columns are created just once and they have this structure (assuming the W is the width of the column and H its height):
 
 ```js
-ff
+[
+  1,  // Obstacle type
+  0,  // X. 0 is center. -W/2 left edge of the column and +W/2 right edge.
+]
 ```
