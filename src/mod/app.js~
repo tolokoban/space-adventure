@@ -1,0 +1,7 @@
+"use strict";
+
+var WebGL = require("tfw.webgl");
+
+
+var renderer = new WebGL.renderer( document.getElementById( "canvas" ) );
+
