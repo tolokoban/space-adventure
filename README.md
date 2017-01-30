@@ -15,7 +15,21 @@ But to prevent any memory allocation during animation, all the columns are creat
 
 ```js
 [
-  1,  // Obstacle type
-  0,  // X. 0 is center. -W/2 left edge of the column and +W/2 right edge.
+  1,   // Obstacle type. 0 means that there is no more obstacle in this column.
+  0,   // X. 0 is center. -W/2 left edge of the column and +W/2 right edge.
+  23,  // Y. 0 bottom edge of the column and +H top edge.
+  7,   // Attribute 1. Depends on the objstacle type. See below.
+  9,   // Attribute 2.
+  ...
+  6,   // Attribute n.
+  ...  // Repeat this sequence 5 times if you have a maximum of 5 obstacle in a column.
 ]
 ```
+
+Here are the differents obstacles:
+1. Moon.
+  * Att1: radius
+  * Att2: limit of movement in Y.
+  * Att3: speed of movement.
+2. Reward. The hero win points if he catch it.
+  * Att1: number of points.
