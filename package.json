@@ -1,7 +1,7 @@
 {
     "name": "space-adventure",
     "author": "tolokoban",
-    "description": "Clone of Cavalcadeur's game.",
+    "description": "WebGL clone of Cavalcadeur's original game.",
     "repository": {
         "type": "git",
         "url": "https://github.com/tolokoban/space-adventure.git"
