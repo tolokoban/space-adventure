@@ -1,0 +1,8 @@
+{
+    "var": {
+        "vertHero": "vert.c",
+        "fragHero": "frag-hero.c",
+        "vertMoon": "vert-moon.c",
+        "fragMoon": "frag-moon.c"
+    }
+}
