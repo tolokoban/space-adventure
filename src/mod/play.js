@@ -15,7 +15,7 @@ var COL_W = 400;
 // Column's height in space's pixels.
 var COL_H = 1000;
 // Vertical acceleration in space's pixels per second.
-var GRAVITY = -1600;
+var GRAVITY = 1600;
 // Maximum number of obstacles that can appear in the same column.
 var MAX_OBSTACLES_PER_COL = 1;
 // Number of generic obstacles per obstacle.
@@ -72,7 +72,7 @@ exports.init = function( argGl, argCanvas ) {
     gl = argGl;
     canvas = argCanvas;
     return new Promise(function (resolve, reject) {
-        ImageLoader({ hero: "hero.png" }).then(function(data) {
+        ImageLoader({ hero: "hero.png", moon: "moon.png" }).then(function(data) {
             heroImg = data.hero;
             resolve();
         });
@@ -138,11 +138,8 @@ exports.reset = function() {
         gl.RGBA, gl.UNSIGNED_BYTE,
         heroImg);
 
-    EventHandler.onDown(function() {
-        heroVY = 1000;
-    });
-    EventHandler.onUp(function() {
-        if( heroVY > 0 ) heroVY *= .2;
+    EventHandler.on(function( type ) {
+        heroVY = type * GRAVITY * .5;
     });
     EventHandler.start();
 };
@@ -164,7 +161,14 @@ exports.draw = function( time ) {
     // Computing hero's position regarding his speed.
     heroX = (COL_W * .5 + heroVX * time) % gameWidth;
 
-    heroVY += GRAVITY * deltaTime;
+    if( heroVY > 0 ) {
+        heroVY -= GRAVITY * deltaTime;
+        if( heroVY < 0 ) heroVY = 0;
+    }
+    else if( heroVY < 0 ) {
+        heroVY += GRAVITY * deltaTime;
+        if( heroVY > 0 ) heroVY = 0;
+    }
     heroY += heroVY * deltaTime;
     if( heroY > gameHeight - heroSize ) {
         heroY = gameHeight - heroSize;
@@ -172,7 +176,7 @@ exports.draw = function( time ) {
     }
     else if( heroY < heroSize ) {
         heroY = heroSize;
-        heroVY = 0;
+        heroVY = Math.abs( heroVY );
     }
 
     clearScreen();
@@ -226,7 +230,7 @@ function drawHero( time ) {
 
     // Rotate the hero according to vertical speed.
     var rotation = heroVY > 0 ? Math.sqrt(heroVY) : -Math.sqrt(-heroVY);
-    rotation *= .02;
+    rotation *= .04;
     // Limit rotation.
     rotation = Math.min( Math.PI * .5, Math.max( -Math.PI * .5, rotation ) );
     heroProgram.$uniRotation = rotation;    

@@ -1,25 +1,34 @@
 "use strict";
 
-var onDown = function() {};
-var onUp = function() {};
+var on = function() {};
 var start = false;
 
+var lastX, lastY;
+
 module.exports = {
-    onDown: function(slot) { onDown = slot; },
-    onUp: function(slot) { onUp = slot; },
+    on: function(slot) { on = slot; },
     start: function() { start = true; },
     stop: function() { start = false; }
 };
 
-function down( evt ) {
-    if( start ) onDown();
-}
-
-function up( evt ) {
-    if( start ) onUp();
-}
-
-document.addEventListener( 'keydown', down );
-document.addEventListener( 'keyup', up );
-document.addEventListener( 'touchstart', down );
-document.addEventListener( 'touchend', up );
+document.addEventListener( 'keydown', function(evt) {
+    if( !start ) return;
+    if( evt.keyCode == 38 ) on( +1 );
+    if( evt.keyCode == 40 ) on( -1 );
+});
+document.addEventListener( 'touchstart', function(evt) {
+    var touch = evt.changedTouches[0];
+    lastX = touch.clientX;
+    lastY = touch.clientY;
+});
+document.addEventListener( 'touchend', function(evt) {
+    var touch = evt.changedTouches[0];
+    var vx = touch.clientX - lastX;
+    var vy = touch.clientY - lastY;
+    if( Math.abs( vx ) > Math.abs( vy ) ) return;
+    if( vy > 0 ) {
+        on( -1 );
+    } else {
+        on( +1 );
+    }
+});
