@@ -17,7 +17,7 @@ var COL_H = 1000;
 // Vertical acceleration in space's pixels per second.
 var GRAVITY = -1600;
 // Maximum number of obstacles that can appear in the same column.
-var MAX_OBSTACLES_PER_COL = 5;
+var MAX_OBSTACLES_PER_COL = 1;
 // Number of generic obstacles per obstacle.
 var NB_ATT_PER_OBSTACLE = 3;
 // Size of one obstacle buffer.
@@ -73,7 +73,6 @@ exports.init = function( argGl, argCanvas ) {
     canvas = argCanvas;
     return new Promise(function (resolve, reject) {
         ImageLoader({ hero: "hero.png" }).then(function(data) {
-            console.info("[play] data=", data);
             heroImg = data.hero;
             resolve();
         });
@@ -102,8 +101,6 @@ exports.reset = function() {
     for( var colIdx=0; colIdx<nbColumns; colIdx++ ) {
         randomColumn( colIdx );
     }
-console.info("[play] columns=", columns);
-
 
     heroX = .5 * (nbColumns * COL_W);
     heroY = .5 * COL_H;
@@ -232,7 +229,6 @@ function drawHero( time ) {
     rotation *= .02;
     // Limit rotation.
     rotation = Math.min( Math.PI * .5, Math.max( -Math.PI * .5, rotation ) );
-    console.info("[play] angle1=...", rotation);
     heroProgram.$uniRotation = rotation;    
 
     // Update the screen and game size.
@@ -284,6 +280,7 @@ function drawObstacles( time ) {
  */
 function setUniforms( prg, time ) {
     prg.$uniVTime = time;
+    prg.$uniFTime = time;
     prg.$uniScrW = canvas.width;
     prg.$uniScrH = canvas.height;
     prg.$uniGameW = gameWidth;
@@ -304,7 +301,7 @@ function randomColumn( colIdx ) {
 
 
 function randomObstacle( colIdx, offset ) {
-    var r = ( COL_H / 12 ) * ( .8 + .4 * Math.random() );
+    var r = ( COL_H / 6 ) * ( .8 + .4 * Math.random() );
     var x = Math.random() * COL_W;
     var y = Math.random() * (COL_H - 2 * r) + r;
     columns[offset] = 1;  // Type

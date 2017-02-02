@@ -12,9 +12,11 @@ playReady.then(function() {
 
     renderer.start(function( time ) {
         // Managing resize.
-        canvas.setAttribute( 'width', screen.width );
-        canvas.setAttribute( 'height', screen.height );
-        renderer.gl.viewport( 0, 0, screen.width, screen.height );
+        var W = window.innerWidth;
+        var H = window.innerHeight;
+        canvas.setAttribute( 'width', W );
+        canvas.setAttribute( 'height', H );
+        renderer.gl.viewport( 0, 0, W, H );
         // Drawing the scene.
         Play.draw( time );
     });

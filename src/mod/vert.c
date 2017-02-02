@@ -17,8 +17,7 @@ void main() {
   float angle = attPos.w;
   // Adding some deformations due to "Infinite Improbability Drive".
   float radius = attPos.z * SQRT2
-    * (.95 + .1
-       * cos(uniVTime * (abs(angle))));
+    * (.95 + .1 * cos(uniVTime * angle));
   // Propagate UV to the fragment shader.
   varUV = vec2( .5 * SQRT2 * cos(angle) + .5,
                 .5 - .5 * SQRT2 * sin(angle) );

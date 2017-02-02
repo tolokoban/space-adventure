@@ -11,8 +11,7 @@ void main() {
   float yy = gl_PointCoord.y * 2.0 - 1.0;
   // Rotation.
   float x = xx * cos(varAngle) - yy * sin(varAngle);
-  float y = -xx * sin(varAngle) - yy * cos(varAngle);
-    
+  float y = -xx * sin(varAngle) - yy * cos(varAngle);    
   
   float r = x*x + y*y;
   if( r > 1.0 ) vec4(0.0, 0.0, 0.0, 0.0);
