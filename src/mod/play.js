@@ -94,7 +94,7 @@ exports.reset = function() {
     obstacleProgram = new WebGL.Program(gl, {
         vert: GLOBAL.vertMoon,
         frag: GLOBAL.fragMoon
-    });
+    }, GLOBAL);
 
     // Create the hero buffer in GL memory.
     obstacleBuffer = gl.createBuffer();
@@ -117,7 +117,7 @@ console.info("[play] columns=", columns);
     heroProgram = new WebGL.Program(gl, {
         vert: GLOBAL.vertHero,
         frag: GLOBAL.fragHero
-    });
+    }, GLOBAL);
 
     // Create the hero buffer in GL memory.
     heroBuffer = gl.createBuffer();
@@ -167,20 +167,20 @@ exports.draw = function( time ) {
     // Computing hero's position regarding his speed.
     heroX = (COL_W * .5 + heroVX * time) % gameWidth;
 
-    heroY += heroVY * deltaTime;
     heroVY += GRAVITY * deltaTime;
+    heroY += heroVY * deltaTime;
     if( heroY > gameHeight - heroSize ) {
         heroY = gameHeight - heroSize;
         heroVY = -Math.abs( heroVY );
     }
     else if( heroY < heroSize ) {
         heroY = heroSize;
-        heroVY = 0; //-GRAVITY;
+        heroVY = 0;
     }
 
     clearScreen();
-    drawHero();
-    drawObstacles();
+    drawObstacles( time );
+    drawHero( time );
 
     heroLastTime = time;
 };
@@ -207,31 +207,36 @@ function clearScreen() {
 function drawHero( time ) {
     heroProgram.use();
 
-    // Update hero position.
-    heroAttribs[0] = heroX - heroSize;
-    heroAttribs[1] = heroY - heroSize;
-    heroAttribs[2] = 0;
-    heroAttribs[3] = 1;
-    heroAttribs[4] = heroX + heroSize;
-    heroAttribs[5] = heroY - heroSize;
-    heroAttribs[6] = 1;
-    heroAttribs[7] = 1;
-    heroAttribs[8] = heroX + heroSize;
-    heroAttribs[9] = heroY + heroSize;
-    heroAttribs[10] = 1;
-    heroAttribs[11] = 0;
-    heroAttribs[12] = heroX - heroSize;
-    heroAttribs[13] = heroY + heroSize;
-    heroAttribs[14] = 0;
-    heroAttribs[15] = 0;
+    // Update  hero position.   There  are 4  vertices.   Each one  is
+    // defined  by  a  center,  a  radius and  an  angle.   This  made
+    // rotations easier.
+    heroAttribs[0] = heroX;           // x
+    heroAttribs[1] = heroY;           // y
+    heroAttribs[2] = heroSize;        // z
+    heroAttribs[3] = Math.PI * 0.25;  // w
+    heroAttribs[4] = heroX;
+    heroAttribs[5] = heroY;
+    heroAttribs[6] = heroSize;
+    heroAttribs[7] = Math.PI * 0.75;
+    heroAttribs[8] = heroX;
+    heroAttribs[9] = heroY;
+    heroAttribs[10] = heroSize;
+    heroAttribs[11] = Math.PI * 1.25;
+    heroAttribs[12] = heroX;
+    heroAttribs[13] = heroY;
+    heroAttribs[14] = heroSize;
+    heroAttribs[15] = Math.PI * 1.75;
+
+    // Rotate the hero according to vertical speed.
+    var rotation = heroVY > 0 ? Math.sqrt(heroVY) : -Math.sqrt(-heroVY);
+    rotation *= .02;
+    // Limit rotation.
+    rotation = Math.min( Math.PI * .5, Math.max( -Math.PI * .5, rotation ) );
+    console.info("[play] angle1=...", rotation);
+    heroProgram.$uniRotation = rotation;    
 
     // Update the screen and game size.
-    heroProgram.$uniScrW = canvas.width;
-    heroProgram.$uniScrH = canvas.height;
-    heroProgram.$uniGameW = gameWidth;
-    heroProgram.$uniGameH = gameHeight;
-    heroProgram.$uniCamX = heroX;
-    heroProgram.$uniCamY = COL_H * .5;
+    setUniforms( heroProgram, time );
 
     // Set the active buffer.
     gl.bindBuffer(gl.ARRAY_BUFFER, heroBuffer);
@@ -251,12 +256,7 @@ function drawObstacles( time ) {
     obstacleProgram.use();
 
     // Update the screen and game size.
-    obstacleProgram.$uniScrW = canvas.width;
-    obstacleProgram.$uniScrH = canvas.height;
-    obstacleProgram.$uniGameW = gameWidth;
-    obstacleProgram.$uniGameH = gameHeight;
-    obstacleProgram.$uniCamX = heroX;
-    obstacleProgram.$uniCamY = COL_H * .5;
+    setUniforms( obstacleProgram, time );
 
     // Set the active buffer.
     gl.bindBuffer(gl.ARRAY_BUFFER, obstacleBuffer);
@@ -279,6 +279,20 @@ function drawObstacles( time ) {
 }
 
 
+/**
+ * Set the common uniforms for screen size, camera position, etc.
+ */
+function setUniforms( prg, time ) {
+    prg.$uniVTime = time;
+    prg.$uniScrW = canvas.width;
+    prg.$uniScrH = canvas.height;
+    prg.$uniGameW = gameWidth;
+    prg.$uniGameH = gameHeight;
+    prg.$uniCamX = heroX;
+    prg.$uniCamY = COL_H * .5;    
+}
+
+
 function randomColumn( colIdx ) {
     colIdx = (colIdx + nbColumns) % nbColumns;
     var offset = colIdx * COL_BUFF_LENGTH;
@@ -290,7 +304,7 @@ function randomColumn( colIdx ) {
 
 
 function randomObstacle( colIdx, offset ) {
-    var r = ( COL_H / 16 ) * ( .8 + .4 * Math.random() );
+    var r = ( COL_H / 12 ) * ( .8 + .4 * Math.random() );
     var x = Math.random() * COL_W;
     var y = Math.random() * (COL_H - 2 * r) + r;
     columns[offset] = 1;  // Type

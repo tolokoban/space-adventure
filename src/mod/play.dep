@@ -3,6 +3,9 @@
         "vertHero": "vert.c",
         "fragHero": "frag-hero.c",
         "vertMoon": "vert-moon.c",
-        "fragMoon": "frag-moon.c"
+        "fragMoon": "frag-moon.c",
+
+        "game2gl": "game2gl.c",
+        "vertCommon": "vert-common.c"
     }
 }
