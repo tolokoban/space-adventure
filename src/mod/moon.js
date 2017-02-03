@@ -4,7 +4,9 @@
 "use strict";
 
 var G = require("global");
+var Hero = require("hero");
 var Programs = require("programs");
+
 
 // Number of attributes for an obstacle.
 var PARTICLE_SIZE = 4;
@@ -70,4 +72,43 @@ exports.draw = function( time ) {
 
     // Draw this POINTS.
     gl.drawArrays( gl.POINTS, 0, G.NB_COLS );
+};
+
+
+exports.move = function( time ) {
+    var x = Hero.x();
+    var y = Hero.y();
+    var idx1 = Math.floor( x / G.COL_W );
+    var idx0 = (idx1 + G.NB_COLS - 1) % G.NB_COLS;
+    var idx2 = (idx1 + 1) % G.NB_COLS;
+
+    idx0 *= PARTICLE_SIZE;
+    idx1 *= PARTICLE_SIZE;
+    idx2 *= PARTICLE_SIZE;
+    
+    var dis, dx, dy, limit;
+
+    dx = attribs[idx0 + 1] - x;
+    dy = attribs[idx0 + 2] - y;
+    limit = attribs[idx0 + 3];
+    dis = dx*dx + dy*dy;
+    if( dis < limit * limit ) {
+        return Hero.collision( time );
+    }
+
+    dx = attribs[idx1 + 1] - x;
+    dy = attribs[idx1 + 2] - y;
+    limit = attribs[idx1 + 3];
+    dis = dx*dx + dy*dy;
+    if( dis < limit * limit ) {
+        return Hero.collision( time );
+    }
+
+    dx = attribs[idx2 + 1] - x;
+    dy = attribs[idx2 + 2] - y;
+    limit = attribs[idx2 + 3];
+    dis = dx*dx + dy*dy;
+    if( dis < limit * limit ) {
+        return Hero.collision( time );
+    }
 };

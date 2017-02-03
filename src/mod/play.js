@@ -53,12 +53,7 @@ exports.init = function( argGl, argCanvas ) {
     gl = argGl;
     canvas = argCanvas;
     return new Promise(function (resolve, reject) {
-        Hero.ready.then(function() {
-            ImageLoader({ hero: "hero.png" }).then(function(data) {
-                heroImg = data.hero;
-                resolve();
-            });
-        });
+        Hero.ready.then( resolve );
     });
 };
 
@@ -69,49 +64,6 @@ exports.reset = function() {
     Hero.reset( gl );
     Moon.reset( gl );
     Smoke.reset( gl );
-
-    heroX = .5 * (G.NB_COLS * G.COL_W);
-    heroY = .5 * G.COL_H;
-    heroVX = G.COL_W * .5;
-    heroVY = 5;
-    heroSize = G.COL_H / 16;
-    console.log( heroX, heroY, G );
-
-    // We set 0 to tell draw() it has to set the time iiself.
-    heroLastTime = 0;
-
-    heroProgram = new WebGL.Program(gl, {
-        vert: GLOBAL.vertHero,
-        frag: GLOBAL.fragHero
-    }, GLOBAL);
-
-    // Create the hero buffer in GL memory.
-    heroBuffer = gl.createBuffer();
-    // Prepare texture for hero.
-    heroTexture = gl.createTexture();
-    // Create a texture.
-    gl.bindTexture(gl.TEXTURE_2D, heroTexture);
-    // Set the parameters so we can render any size image.
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-
-    // Upload the image into the texture.
-    gl.activeTexture( gl.TEXTURE0 );
-    gl.bindTexture( gl.TEXTURE_2D, heroTexture );
-    gl.pixelStorei( gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false );
-    gl.texImage2D(
-        gl.TEXTURE_2D, 0, gl.RGBA,
-        //heroImg.width, heroImg.height, 0,
-        gl.RGBA, gl.UNSIGNED_BYTE,
-        heroImg);
-/*
-    EventHandler.on(function( dir ) {
-        heroVY = 666 * dir;
-    });
-    EventHandler.start();
-*/
 };
 
 
@@ -124,6 +76,7 @@ exports.draw = function( time ) {
     time *= .001;
 
     Hero.move( time );
+    Moon.move( time );
 
     // Setting the hero's birth time.
     if( heroLastTime == 0 ) {
@@ -154,16 +107,12 @@ exports.draw = function( time ) {
         heroVY = Math.abs( heroVY );
     }
 
-    G.cameraX = heroX;//Hero.x();
+    G.cameraX = Hero.x();
     G.cameraY = G.COL_H * .5;
 
     clearScreen();
     Moon.draw( time );
-    Smoke.draw( time, heroX, heroY );
-
-    //if( time % .6 < .5 ) {
-    drawHero( time );
-    //}
+    Smoke.draw( time );
     Hero.draw( time );
 
     heroLastTime = time;
@@ -184,49 +133,4 @@ function clearScreen() {
     gl.clearColor(28 / 255, 134 / 255, 182 / 255, 1.0);
     // Clear the current screen.
     gl.clear(gl.COLOR_BUFFER_BIT);
-}
-
-
-function drawHero( time ) {
-    // Update the screen and game size.
-    G.setGlobalUniforms( heroProgram, time );
-
-    // Update  hero position.   There  are 4  vertices.   Each one  is
-    // defined  by  a  center,  a  radius and  an  angle.   This  made
-    // rotations easier.
-    heroAttribs[0] = heroX;           // x
-    heroAttribs[1] = heroY;           // y
-    heroAttribs[2] = heroSize;        // z
-    heroAttribs[3] = Math.PI * 0.25;  // w
-    heroAttribs[4] = heroX;
-    heroAttribs[5] = heroY;
-    heroAttribs[6] = heroSize;
-    heroAttribs[7] = Math.PI * 0.75;
-    heroAttribs[8] = heroX;
-    heroAttribs[9] = heroY;
-    heroAttribs[10] = heroSize;
-    heroAttribs[11] = Math.PI * 1.25;
-    heroAttribs[12] = heroX;
-    heroAttribs[13] = heroY;
-    heroAttribs[14] = heroSize;
-    heroAttribs[15] = Math.PI * 1.75;
-
-    // Rotate the hero according to vertical speed.
-    var rotation = heroVY > 0 ? Math.sqrt(heroVY) : -Math.sqrt(-heroVY);
-    rotation *= .02;
-    // Limit rotation.
-    rotation = Math.min( Math.PI * .5, Math.max( -Math.PI * .5, rotation ) );
-    heroProgram.$uniRotation = rotation;
-
-    // Set the active buffer.
-    gl.bindBuffer(gl.ARRAY_BUFFER, heroBuffer);
-    // Paste attributes in this buffer.
-    gl.bufferData(gl.ARRAY_BUFFER, heroAttribs, gl.STATIC_DRAW);
-
-    // attPos
-    gl.enableVertexAttribArray( heroProgram.$attPos );
-    gl.vertexAttribPointer( heroProgram.$attPos, 4, gl.FLOAT, false, 4 * BPE, 0 );
-
-    // Draw this SQUARE.
-    gl.drawArrays( gl.TRIANGLE_FAN, 0, 4 );
 }

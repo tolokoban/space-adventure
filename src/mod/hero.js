@@ -30,6 +30,8 @@ var vx, vy;
 var size;
 // Lastime the hero was displayed.
 var lastTime;
+// Time of the last collision.
+var collisionTime = 0;
 
 
 exports.ready = new Promise(function (resolve, reject) {
@@ -50,7 +52,7 @@ exports.reset = function( argGL ) {
     lastTime = 0;
     x = .5 * (G.NB_COLS * G.COL_W);
     y = .5 * G.COL_H;
-    vx = G.COL_W * .5;
+    vx = G.COL_W * .8;
     vy = 0;
     size = G.COL_H / 16;
     console.log( x, y, G );    
@@ -84,6 +86,8 @@ exports.reset = function( argGL ) {
 
 exports.draw = function( time ) {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+    G.setGlobalUniforms( prg, time );
 
     // Update  hero position.   There  are 4  vertices.   Each one  is
     // defined  by  a  center,  a  radius and  an  angle.   This  made
@@ -157,7 +161,13 @@ exports.move = function( time ) {
 };
 
 
+exports.collision = function( time ) {
+    collisionTime = time;
+    //console.info("[hero] collisionTime=...", collisionTime);
+};
+
 exports.x = function() { return x; };
 exports.y = function() { return y; };
 exports.vx = function() { return vx; };
 exports.vy = function() { return vy; };
+exports.size = function() { return size; };
