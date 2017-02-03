@@ -8,6 +8,7 @@
 "use strict";
 
 var G = require("global");
+var Hero = require("hero");
 var Programs = require("programs");
 
 
@@ -47,13 +48,16 @@ exports.reset = function( argGL ) {
 };
 
 
-exports.draw = function( time, x, y ) {
+exports.draw = function( time ) {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ZERO, gl.ONE);
     gl.blendEquation(gl.FUNC_ADD);
 
     if( time - lastEmission > PERIOD ) {
-        addParticle( time, x - Math.random() * 30, y - Math.random() * 30 );
+        addParticle(
+            time, Hero.x() - Math.random() * 30,
+            Hero.y() - Math.random() * 30
+        );
     }
 
     G.setGlobalUniforms( prg, time );

@@ -76,7 +76,7 @@ exports.reset = function( argGL ) {
         image);
 
     EventHandler.on(function( dir ) {
-        vy = 777 * dir;
+        vy = 666 * dir;
     });
     EventHandler.start();
 };
@@ -135,7 +135,7 @@ exports.move = function( time ) {
     lastTime = time;
     
     // Computing hero's position regarding his speed.
-    x = (x + vx * deltaTime) % G.GAME_W;
+    x = (G.COL_W * .5 + vx * time) % G.GAME_W;
 
     if( vy > 0) {
         vy -= GRAVITY * deltaTime;

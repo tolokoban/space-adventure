@@ -164,7 +164,7 @@ exports.draw = function( time ) {
     //if( time % .6 < .5 ) {
     drawHero( time );
     //}
-    //Hero.draw( time );
+    Hero.draw( time );
 
     heroLastTime = time;
 };
