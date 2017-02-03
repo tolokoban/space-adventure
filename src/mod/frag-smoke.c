@@ -13,6 +13,8 @@ void main() {
   else {
     float a = 2.0 - varAge;
     a = clamp(a, 0.0, 1.0);
-    gl_FragColor = vec4(0.0, 0.0, 0.0, 0.1 * a);
+    a *= 1.0 - r * 4.0;
+    float k = .5 * (1.0 + sin(.3 * uniFTime));
+    gl_FragColor = vec4(k, k, k, 0.5 * a);
   }
 }

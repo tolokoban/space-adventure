@@ -34,8 +34,9 @@ void main() {
   // Point's size...
   float age = uniVTime - attPos.z;
   varAge = age;
-  float size = 70.0 * (1.0 + varRnd);
+  float size = 50.0 * (1.0 + varRnd);
   size *= clamp( age, 0.0, 1.0 );
+  size += 30.0;
   if( age > 2.0 ) size = 0.0;
   gl_PointSize = size * factorS;
 }

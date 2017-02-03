@@ -4,6 +4,7 @@
 "use strict";
 
 var G = require("global");
+var Hero = require("hero");
 var Moon = require("moon");
 var Smoke = require("smoke");
 var WebGL = require("tfw.webgl");
@@ -43,6 +44,8 @@ var heroBuffer;    // Will contain the attributes in GL memory.
 var heroAttribs = new Float32Array(4 * 4);   // [x, y, u, v] * 4.
 var heroTexture;
 
+var blink = false;
+
 
 //========================= init().
 
@@ -50,9 +53,11 @@ exports.init = function( argGl, argCanvas ) {
     gl = argGl;
     canvas = argCanvas;
     return new Promise(function (resolve, reject) {
-        ImageLoader({ hero: "hero.png" }).then(function(data) {
-            heroImg = data.hero;
-            resolve();
+        Hero.ready.then(function() {
+            ImageLoader({ hero: "hero.png" }).then(function(data) {
+                heroImg = data.hero;
+                resolve();
+            });
         });
     });
 };
@@ -61,15 +66,16 @@ exports.init = function( argGl, argCanvas ) {
 //========================= reset().
 
 exports.reset = function() {
+    Hero.reset( gl );
     Moon.reset( gl );
     Smoke.reset( gl );
 
     heroX = .5 * (G.NB_COLS * G.COL_W);
     heroY = .5 * G.COL_H;
-    heroVX = 100;
+    heroVX = G.COL_W * .5;
     heroVY = 5;
     heroSize = G.COL_H / 16;
-    console.log( heroX, heroY, G );    
+    console.log( heroX, heroY, G );
 
     // We set 0 to tell draw() it has to set the time iiself.
     heroLastTime = 0;
@@ -100,11 +106,12 @@ exports.reset = function() {
         //heroImg.width, heroImg.height, 0,
         gl.RGBA, gl.UNSIGNED_BYTE,
         heroImg);
-
+/*
     EventHandler.on(function( dir ) {
         heroVY = 666 * dir;
     });
     EventHandler.start();
+*/
 };
 
 
@@ -115,6 +122,9 @@ exports.draw = function( time ) {
 
     // Converting time to seconds instead of ms.
     time *= .001;
+
+    Hero.move( time );
+
     // Setting the hero's birth time.
     if( heroLastTime == 0 ) {
         heroLastTime = time;
@@ -144,13 +154,17 @@ exports.draw = function( time ) {
         heroVY = Math.abs( heroVY );
     }
 
-    G.cameraX = heroX;
+    G.cameraX = heroX;//Hero.x();
     G.cameraY = G.COL_H * .5;
 
     clearScreen();
     Moon.draw( time );
     Smoke.draw( time, heroX, heroY );
+
+    //if( time % .6 < .5 ) {
     drawHero( time );
+    //}
+    //Hero.draw( time );
 
     heroLastTime = time;
 };
@@ -202,7 +216,7 @@ function drawHero( time ) {
     rotation *= .02;
     // Limit rotation.
     rotation = Math.min( Math.PI * .5, Math.max( -Math.PI * .5, rotation ) );
-    heroProgram.$uniRotation = rotation;    
+    heroProgram.$uniRotation = rotation;
 
     // Set the active buffer.
     gl.bindBuffer(gl.ARRAY_BUFFER, heroBuffer);

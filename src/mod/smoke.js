@@ -43,20 +43,21 @@ exports.reset = function( argGL ) {
     }
     attribs = new Float32Array( PARTICLE_SIZE * NB_PARTICLES );
     buffer = gl.createBuffer();
-    
+
 };
 
 
 exports.draw = function( time, x, y ) {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ZERO, gl.ONE);
+    gl.blendEquation(gl.FUNC_ADD);
 
     if( time - lastEmission > PERIOD ) {
-        console.log("Emit!");
         addParticle( time, x - Math.random() * 30, y - Math.random() * 30 );
     }
 
     G.setGlobalUniforms( prg, time );
-    
+
     // Set the active buffer.
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     // Paste attributes in this buffer.
@@ -69,7 +70,7 @@ exports.draw = function( time, x, y ) {
 
     // Draw this POINTS.
     gl.drawArrays( gl.POINTS, 0, NB_PARTICLES );
-    
+
 };
 
 
