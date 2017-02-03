@@ -14,7 +14,7 @@ var EventHandler = require("event-handler");
 //========================= Constants.
 
 // Vertical acceleration in space's pixels per second.
-var GRAVITY = -1600;
+var GRAVITY = 1600;
 // Hardware size of a Float32.
 var BPE = new Float32Array().BYTES_PER_ELEMENT;
 // Square root of 2. We compute it only one time.
@@ -101,11 +101,8 @@ exports.reset = function() {
         gl.RGBA, gl.UNSIGNED_BYTE,
         heroImg);
 
-    EventHandler.onDown(function() {
-        heroVY = 1000;
-    });
-    EventHandler.onUp(function() {
-        if( heroVY > 0 ) heroVY *= .2;
+    EventHandler.on(function( dir ) {
+        heroVY = 666 * dir;
     });
     EventHandler.start();
 };
@@ -129,15 +126,22 @@ exports.draw = function( time ) {
     // Computing hero's position regarding his speed.
     heroX = (G.COL_W * .5 + heroVX * time) % G.GAME_W;
 
-    heroVY += GRAVITY * deltaTime;
+    if( heroVY > 0) {
+        heroVY -= GRAVITY * deltaTime;
+        if( heroVY < 0 ) heroVY = 0;
+    }
+    else if( heroVY < 0) {
+        heroVY += GRAVITY * deltaTime;
+        if( heroVY > 0 ) heroVY = 0;
+    }
     heroY += heroVY * deltaTime;
     if( heroY > G.GAME_H - heroSize ) {
         heroY = G.GAME_H - heroSize;
         heroVY = -Math.abs( heroVY );
     }
-    else if( heroY < G.GAME_H * .5 ) {
-        heroY = G.GAME_H * .5;
-        heroVY = 0;
+    else if( heroY < heroSize ) {
+        heroY = heroSize;
+        heroVY = Math.abs( heroVY );
     }
 
     G.cameraX = heroX;
