@@ -1,24 +1,20 @@
 #include vertCommon
 
-// Obstacle's type.
-attribute float attType;
 // Vertex position and texture coords.
 // (x,y) for vertex position, in game's space.
-// (z,w) for (u,v) texture coords.
-attribute vec2 attPos;
-// Point size.
-attribute float attSize;
+// z: birth.
+// w: random.
+attribute vec4 attPos;
 
-varying float varSize;
-varying float varAngle;
-
+varying float varRnd;
+varying float varAge;
 
 const float CURVATURE = 0.5;
 const float PI = 3.1415926535;
 
 void main() {
-  // Propagate size to the fragment shader.
-  varSize = attSize;
+  // Propagate random to the fragment shader.
+  varRnd = attPos.w;
   // Game's space coords.
   float xG = attPos.x - uniCamX;
   float yG = attPos.y - uniCamY;    
@@ -28,7 +24,6 @@ void main() {
     
   // Curvature.
   float a = PI * .5 - PI * xG / uniGameW;
-  varAngle = a + PI * .5;
   float r = attPos.y + uniGameH * CURVATURE;
 
   xG = r * cos( a );
@@ -37,5 +32,10 @@ void main() {
   #include game2gl
   
   // Point's size...
-  gl_PointSize = attSize * factorS;
+  float age = uniVTime - attPos.z;
+  varAge = age;
+  float size = 70.0 * (1.0 + varRnd);
+  size *= clamp( age, 0.0, 1.0 );
+  if( age > 2.0 ) size = 0.0;
+  gl_PointSize = size * factorS;
 }

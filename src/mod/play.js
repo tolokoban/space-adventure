@@ -3,6 +3,9 @@
  */
 "use strict";
 
+var G = require("global");
+var Moon = require("moon");
+var Smoke = require("smoke");
 var WebGL = require("tfw.webgl");
 var ImageLoader = require("image-loader");
 var EventHandler = require("event-handler");
@@ -10,20 +13,8 @@ var EventHandler = require("event-handler");
 
 //========================= Constants.
 
-// Column's width in space's pixels.
-var COL_W = 400;
-// Column's height in space's pixels.
-var COL_H = 1000;
 // Vertical acceleration in space's pixels per second.
 var GRAVITY = -1600;
-// Maximum number of obstacles that can appear in the same column.
-var MAX_OBSTACLES_PER_COL = 1;
-// Number of generic obstacles per obstacle.
-var NB_ATT_PER_OBSTACLE = 3;
-// Size of one obstacle buffer.
-var OBS_BUFF_LENGTH = 3 + NB_ATT_PER_OBSTACLE;
-// Size of one column buffer.
-var COL_BUFF_LENGTH = OBS_BUFF_LENGTH * MAX_OBSTACLES_PER_COL;
 // Hardware size of a Float32.
 var BPE = new Float32Array().BYTES_PER_ELEMENT;
 // Square root of 2. We compute it only one time.
@@ -36,15 +27,6 @@ var SQRT2 = Math.sqrt( 2 );
 var gl;
 // Canvas. Used to get display width and height.
 var canvas;
-// Columns contain obstacles.
-var columns = [];
-// Number of obstacle per column.
-var columnsLengths = [];
-// Number of columns.
-var nbColumns;
-// Space width: nbColumns * COL_W.
-var gameWidth;
-var gameHeight;
 
 // Hero variables.
 var heroX, heroY;
@@ -60,10 +42,6 @@ var heroProgram;   // Shader program.
 var heroBuffer;    // Will contain the attributes in GL memory.
 var heroAttribs = new Float32Array(4 * 4);   // [x, y, u, v] * 4.
 var heroTexture;
-
-// WebGL stuff for obstacles.
-var obstacleProgram;  // Shader program.
-var obstacleBuffer;   // Will contain the attributes in GL memory.
 
 
 //========================= init().
@@ -83,30 +61,15 @@ exports.init = function( argGl, argCanvas ) {
 //========================= reset().
 
 exports.reset = function() {
-    // We assume that there is no screen which width is more than the double of its height.
-    nbColumns = Math.ceil( COL_H / COL_W ) * 2;
-    columns = new Float32Array( nbColumns * COL_BUFF_LENGTH );
-    columnsLengths = new Array( nbColumns );
-    gameWidth = nbColumns * COL_W;
-    gameHeight = COL_H;
+    Moon.reset( gl );
+    Smoke.reset( gl );
 
-    obstacleProgram = new WebGL.Program(gl, {
-        vert: GLOBAL.vertMoon,
-        frag: GLOBAL.fragMoon
-    }, GLOBAL);
-
-    // Create the hero buffer in GL memory.
-    obstacleBuffer = gl.createBuffer();
-
-    for( var colIdx=0; colIdx<nbColumns; colIdx++ ) {
-        randomColumn( colIdx );
-    }
-
-    heroX = .5 * (nbColumns * COL_W);
-    heroY = .5 * COL_H;
+    heroX = .5 * (G.NB_COLS * G.COL_W);
+    heroY = .5 * G.COL_H;
     heroVX = 100;
     heroVY = 5;
-    heroSize = COL_H / 16;
+    heroSize = G.COL_H / 16;
+    console.log( heroX, heroY, G );    
 
     // We set 0 to tell draw() it has to set the time iiself.
     heroLastTime = 0;
@@ -151,6 +114,8 @@ exports.reset = function() {
 //========================= draw().
 
 exports.draw = function( time ) {
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
     // Converting time to seconds instead of ms.
     time *= .001;
     // Setting the hero's birth time.
@@ -162,21 +127,25 @@ exports.draw = function( time ) {
     var deltaTime = time - heroLastTime;
 
     // Computing hero's position regarding his speed.
-    heroX = (COL_W * .5 + heroVX * time) % gameWidth;
+    heroX = (G.COL_W * .5 + heroVX * time) % G.GAME_W;
 
     heroVY += GRAVITY * deltaTime;
     heroY += heroVY * deltaTime;
-    if( heroY > gameHeight - heroSize ) {
-        heroY = gameHeight - heroSize;
+    if( heroY > G.GAME_H - heroSize ) {
+        heroY = G.GAME_H - heroSize;
         heroVY = -Math.abs( heroVY );
     }
-    else if( heroY < heroSize ) {
-        heroY = heroSize;
+    else if( heroY < G.GAME_H * .5 ) {
+        heroY = G.GAME_H * .5;
         heroVY = 0;
     }
 
+    G.cameraX = heroX;
+    G.cameraY = G.COL_H * .5;
+
     clearScreen();
-    drawObstacles( time );
+    Moon.draw( time );
+    Smoke.draw( time, heroX, heroY );
     drawHero( time );
 
     heroLastTime = time;
@@ -193,7 +162,6 @@ function clearScreen() {
     gl.disable(gl.DEPTH_TEST);
     // Enable blending for transprent textures.
     gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     // Define the filling color.
     gl.clearColor(28 / 255, 134 / 255, 182 / 255, 1.0);
     // Clear the current screen.
@@ -202,7 +170,8 @@ function clearScreen() {
 
 
 function drawHero( time ) {
-    heroProgram.use();
+    // Update the screen and game size.
+    G.setGlobalUniforms( heroProgram, time );
 
     // Update  hero position.   There  are 4  vertices.   Each one  is
     // defined  by  a  center,  a  radius and  an  angle.   This  made
@@ -231,9 +200,6 @@ function drawHero( time ) {
     rotation = Math.min( Math.PI * .5, Math.max( -Math.PI * .5, rotation ) );
     heroProgram.$uniRotation = rotation;    
 
-    // Update the screen and game size.
-    setUniforms( heroProgram, time );
-
     // Set the active buffer.
     gl.bindBuffer(gl.ARRAY_BUFFER, heroBuffer);
     // Paste attributes in this buffer.
@@ -245,67 +211,4 @@ function drawHero( time ) {
 
     // Draw this SQUARE.
     gl.drawArrays( gl.TRIANGLE_FAN, 0, 4 );
-}
-
-
-function drawObstacles( time ) {
-    obstacleProgram.use();
-
-    // Update the screen and game size.
-    setUniforms( obstacleProgram, time );
-
-    // Set the active buffer.
-    gl.bindBuffer(gl.ARRAY_BUFFER, obstacleBuffer);
-    // Paste attributes in this buffer.
-    gl.bufferData(gl.ARRAY_BUFFER, columns, gl.STATIC_DRAW);
-
-    var size = BPE * OBS_BUFF_LENGTH;
-    // attTypd
-    gl.enableVertexAttribArray( obstacleProgram.$attType );
-    gl.vertexAttribPointer( obstacleProgram.$attType, 1, gl.FLOAT, false, size, 0 );
-    // attPos
-    gl.enableVertexAttribArray( obstacleProgram.$attPos );
-    gl.vertexAttribPointer( obstacleProgram.$attPos, 2, gl.FLOAT, false, size, 1 * BPE );
-    // attSize
-    gl.enableVertexAttribArray( obstacleProgram.$attSize );
-    gl.vertexAttribPointer( obstacleProgram.$attSize, 1, gl.FLOAT, false, size, 3 * BPE );
-
-    // Draw this SQUARE.
-    gl.drawArrays( gl.POINTS, 0, nbColumns * MAX_OBSTACLES_PER_COL );
-}
-
-
-/**
- * Set the common uniforms for screen size, camera position, etc.
- */
-function setUniforms( prg, time ) {
-    prg.$uniVTime = time;
-    prg.$uniFTime = time;
-    prg.$uniScrW = canvas.width;
-    prg.$uniScrH = canvas.height;
-    prg.$uniGameW = gameWidth;
-    prg.$uniGameH = gameHeight;
-    prg.$uniCamX = heroX;
-    prg.$uniCamY = COL_H * .5;    
-}
-
-
-function randomColumn( colIdx ) {
-    colIdx = (colIdx + nbColumns) % nbColumns;
-    var offset = colIdx * COL_BUFF_LENGTH;
-    for( var i=0; i<MAX_OBSTACLES_PER_COL; i++ ) {
-        randomObstacle( colIdx, offset );
-        offset += OBS_BUFF_LENGTH;
-    }
-}
-
-
-function randomObstacle( colIdx, offset ) {
-    var r = ( COL_H / 6 ) * ( .8 + .4 * Math.random() );
-    var x = Math.random() * COL_W;
-    var y = Math.random() * (COL_H - 2 * r) + r;
-    columns[offset] = 1;  // Type
-    columns[offset + 1] = x + colIdx * COL_W;
-    columns[offset + 2] = y;
-    columns[offset + 3] = r;
 }
