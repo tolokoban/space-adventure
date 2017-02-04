@@ -1,0 +1,13 @@
+{
+    "var": {
+        "vertHero": "vert-hero.c",
+        "fragHero": "frag-hero.c",
+        "vertMoon": "vert-moon.c",
+        "fragMoon": "frag-moon.c",
+        "vertSmoke": "vert-smoke.c",
+        "fragSmoke": "frag-smoke.c",
+
+        "game2gl": "game2gl.c",
+        "vertCommon": "vert-common.c"
+    }
+}

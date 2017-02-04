@@ -3,32 +3,36 @@
 var on = function() {};
 var start = false;
 
-var lastX, lastY;
-
 module.exports = {
     on: function(slot) { on = slot; },
     start: function() { start = true; },
     stop: function() { start = false; }
 };
 
-document.addEventListener( 'keydown', function(evt) {
+document.addEventListener( 'keyup', function(evt) {
     if( !start ) return;
-    if( evt.keyCode == 38 ) on( +1 );
-    if( evt.keyCode == 40 ) on( -1 );
+    if( evt.keyCode == 38 ) {
+        on( +1 );
+}
+    else if( evt.keyCode == 40 ) {
+        on( -1 );
+    }
 });
+
+var X, Y;
 document.addEventListener( 'touchstart', function(evt) {
-    var touch = evt.changedTouches[0];
-    lastX = touch.clientX;
-    lastY = touch.clientY;
+    var t = evt.changedTouches[0];
+    X = t.clientX;
+    Y = t.clientY;
 });
 document.addEventListener( 'touchend', function(evt) {
-    var touch = evt.changedTouches[0];
-    var vx = touch.clientX - lastX;
-    var vy = touch.clientY - lastY;
-    if( Math.abs( vx ) > Math.abs( vy ) ) return;
-    if( vy > 0 ) {
-        on( -1 );
-    } else {
-        on( +1 );
+    var t = evt.changedTouches[0];
+    var x = t.clientX - X;
+    var y = t.clientY - Y;
+    if( Math.abs( x ) > Math.abs( y ) ) {
+        // This is a fire gesture. TODO...
+        return;
     }
+    if( y < 0 ) return on( +1 );
+    if( y > 0 ) return on( -1 );
 });

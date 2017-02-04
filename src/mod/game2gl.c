@@ -9,3 +9,7 @@
   float factorH = 2.0 / uniScrH;
   float x = xS * factorW;
   float y = yS * factorH;
+
+  // GL has a square space with coords between -1 and +1.
+  // Final position in GL space.
+  gl_Position = vec4( x, y, 0.0, 1.0 );
