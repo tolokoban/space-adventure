@@ -41,6 +41,7 @@ exports.reset = function( argGL ) {
         r = ( G.COL_H / 6 ) * ( .7 + .6 * Math.random() );
         x = Math.random() * G.COL_W + i * G.COL_W;
         y = Math.random() * (G.COL_H - 2 * r) + r;
+
         attribs[ptr++] = 1;  // Type.
         attribs[ptr++] = x;
         attribs[ptr++] = y;
@@ -51,6 +52,8 @@ exports.reset = function( argGL ) {
 
 exports.draw = function( time ) {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ZERO, gl.ONE);
+    gl.blendEquation(gl.FUNC_ADD);
     
     G.setGlobalUniforms( prg, time );
 

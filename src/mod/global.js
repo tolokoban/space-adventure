@@ -19,8 +19,8 @@ set( 'BPE', new Float32Array().BYTES_PER_ELEMENT );
 set( 'COL_W', 400 );
 // Column's height in game's pixels.
 set( 'COL_H', 1000 );
-// Game's width must have be least the double of the height.
-set( 'NB_COLS', Math.ceil( 2 * exports.COL_H / exports.COL_W ) );
+// Game's width must have be least 4 times the height.
+set( 'NB_COLS', Math.ceil( 4 * exports.COL_H / exports.COL_W ) );
 set( 'GAME_W', exports.NB_COLS * exports.COL_W );
 set( 'GAME_H', exports.COL_H );
 
