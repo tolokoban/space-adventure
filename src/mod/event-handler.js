@@ -13,7 +13,7 @@ document.addEventListener( 'keyup', function(evt) {
     if( !start ) return;
     if( evt.keyCode == 38 ) {
         on( +1 );
-    }
+}
     else if( evt.keyCode == 40 ) {
         on( -1 );
     }

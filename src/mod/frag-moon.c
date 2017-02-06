@@ -1,5 +1,6 @@
 precision mediump float;
 
+const float PI = 3.141592653589793;
 uniform float uniFTime;
 
 varying float varSize;
@@ -15,7 +16,8 @@ void main() {
     
   
   float r = x*x + y*y;
-  if( r > 1.0 ) vec4(0.0, 0.0, 0.0, 0.0);
+  if( r > 1.0 ) gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+  else if( r > .8 ) gl_FragColor = vec4(1.0, 1.0, 1.0, 0.5);
   else {
     float lat = asin( y );
     float r = cos( lat );
@@ -24,6 +26,7 @@ void main() {
       lng = asin( x / r );
     }
 
+    float shadow = abs( lng );
     lng = lng + 3.0 * cos(uniFTime * varSize * .01 + 10.0 * varSize);
     lng = mod(lng + 1.0, 2.0) - 1.0;
 
@@ -43,5 +46,7 @@ void main() {
         gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
       }
     }
+
+    gl_FragColor = mix( gl_FragColor, vec4(0.0, 0.0, 0.0, 1.0), shadow);
   }
 }

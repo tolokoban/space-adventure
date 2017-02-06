@@ -25,17 +25,11 @@ module.exports = function(sources) {
             };
 
             var onload = function() {
-                var canvas = document.createElement( 'canvas' );
-                canvas.setAttribute( 'width', this.width );
-                canvas.setAttribute( 'height', this.height );
-                var ctx = canvas.getContext( '2d' );
-                ctx.drawImage( this, 0, 0, this.width, this.height );
-                result[this.$id] = canvas;
                 next();
             };
 
             var onerror = function( err ) {
-                console.error("Unable to load image ". this.src + "! ", err);
+                console.error("Unable to load image " + this.src + "! ", err);
                 result[this.$id] = err;
                 next();
             };

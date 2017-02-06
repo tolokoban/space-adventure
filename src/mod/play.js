@@ -112,8 +112,8 @@ exports.draw = function( time ) {
 
     clearScreen();
     Moon.draw( time );
-    Smoke.draw( time );
     Hero.draw( time );
+    Smoke.draw( time );
 
     heroLastTime = time;
 };
