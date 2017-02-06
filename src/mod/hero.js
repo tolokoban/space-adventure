@@ -125,13 +125,11 @@ exports.move = function( time ) {
     var deltaTime = time - lastTime;
     lastTime = time;
     
-    // Computing hero's position regarding his speed.
+    // Computing hero's position regarding to his speed.
     x = (x + vx * deltaTime) % G.GAME_W;
-
     if( vx < MAX_SPEED ) {
         vx = Math.min( MAX_SPEED, vx + ACCEL * deltaTime );
     }
-    console.info("[hero] vx=...", vx);
     
     if( vy > 0) {
         vy -= GRAVITY * deltaTime;
