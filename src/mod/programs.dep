@@ -6,6 +6,8 @@
         "fragMoon": "frag-moon.c",
         "vertSmoke": "vert-smoke.c",
         "fragSmoke": "frag-smoke.c",
+        "vertStars": "vert-stars.c",
+        "fragStars": "frag-stars.c",
 
         "game2gl": "game2gl.c",
         "vertCommon": "vert-common.c"

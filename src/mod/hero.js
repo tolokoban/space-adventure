@@ -4,10 +4,13 @@
 "use strict";
 
 var G = require("global");
+var Rnd = require("random");
 var Programs = require("programs");
 var ImageLoader = require("image-loader");
 var EventHandler = require("event-handler");
 
+// PI to optimize the Math.PI code.
+var PI = Math.PI;
 // This is what brakes the movement.
 var GRAVITY = 1600;
 // Maximum horizontal speed.
@@ -89,25 +92,25 @@ exports.draw = function( time ) {
     attribs[0] = x;           // x
     attribs[1] = y;           // y
     attribs[2] = size;        // z
-    attribs[3] = Math.PI * 0.25;  // w
+    attribs[3] = PI * 0.25;  // w
     attribs[4] = x;
     attribs[5] = y;
     attribs[6] = size;
-    attribs[7] = Math.PI * 0.75;
+    attribs[7] = PI * 0.75;
     attribs[8] = x;
     attribs[9] = y;
     attribs[10] = size;
-    attribs[11] = Math.PI * 1.25;
+    attribs[11] = PI * 1.25;
     attribs[12] = x;
     attribs[13] = y;
     attribs[14] = size;
-    attribs[15] = Math.PI * 1.75;
+    attribs[15] = PI * 1.75;
 
     // Rotate the hero according to vertical speed.
     var rotation = vy > 0 ? Math.sqrt(vy) : -Math.sqrt(-vy);
     rotation *= .02;
     // Limit rotation.
-    rotation = Math.min( Math.PI * .5, Math.max( -Math.PI * .5, rotation ) );
+    rotation = Math.min( PI * .5, Math.max( -PI * .5, rotation ) );
     prg.$uniRotation = rotation;    
 
     // Set the active buffer.
@@ -149,11 +152,11 @@ exports.move = function( time ) {
     y += vy * deltaTime;
     if( y > G.GAME_H - size ) {
         y = G.GAME_H - size;
-        vy = -Math.abs( vy );
+        vy = vy < 0 ? vy : -vy;
     }
     else if( y < size ) {
         y = size;
-        vy = Math.abs( vy );
+        vy = vy > 0 ? vy : -vy;  // abs( vy )
     }
 };
 
@@ -161,8 +164,8 @@ exports.move = function( time ) {
 exports.collision = function( time, dy ) {
     if( vx < 0 ) return;
     collisionTime = time;
-    vy += (dy < 0 ? 1 : -1) * Math.random() * 1200;
-    vx = -Math.abs( vx );
+    vy += (dy < 0 ? 1 : -1) * Rnd() * 1200;
+    vx = vx < 0 ? vx : -vx;  // -Math.abs(...)
 };
 
 

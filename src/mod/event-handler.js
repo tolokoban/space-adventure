@@ -30,13 +30,13 @@ document.addEventListener( 'touchend', function(evt) {
     var t = evt.changedTouches[0];
     var x = t.clientX - X;
     var y = t.clientY - Y;
-    if( Math.abs( x ) > Math.abs( y ) ) {
+    if( (x > 0 ? x : -x) > (y > 0 ? y : -y) ) {
         // This is a fire gesture. TODO...
         return;
     }
-    var speed = Math.abs(y) / ((Date.now() - T) * window.innerHeight);
+    var speed = (y > 0 ? y : -y) / ((Date.now() - T) * window.innerHeight);
     speed *= 1000;
-    speed = Math.min( 2, Math.max( 1, speed ) );
+    speed = Math.min( 2, speed < 1 ? 1 : speed );
     if( y < 0 ) return on( +speed );
     if( y > 0 ) return on( -speed );
 });

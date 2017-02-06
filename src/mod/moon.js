@@ -4,6 +4,7 @@
 "use strict";
 
 var G = require("global");
+var Rnd = require("random");
 var Hero = require("hero");
 var Programs = require("programs");
 var ImageLoader = require("image-loader");
@@ -46,15 +47,15 @@ exports.reset = function( argGL ) {
     var r, x, y;
 
     for( var i=0; i<G.NB_COLS; i++ ) {
-        r = ( G.COL_H / 12 ) * ( .7 + .6 * Math.random() );
-        x = Math.random() * G.COL_W + i * G.COL_W;
-        y = Math.random() * G.COL_H;
+        r = ( G.COL_H / 12 ) * ( .7 + .6 * Rnd() );
+        x = Rnd() * G.COL_W + i * G.COL_W;
+        y = Rnd() * G.COL_H;
 
         attribs[ptr++] = x;
         attribs[ptr++] = y;
         attribs[ptr++] = r;
-        attribs[ptr++] = Math.random();
-        attribs[ptr++] = Math.random();
+        attribs[ptr++] = Rnd();
+        attribs[ptr++] = Rnd();
     }
 };
 
@@ -98,23 +99,23 @@ exports.move = function( time ) {
     var y = Hero.y();
 
     // Current column.
-    var col = Math.floor( x / G.COL_W );
+    var col = ( x / G.COL_W ) << 0; // optimization of the following code: Math.floor( x / G.COL_W );
     if( col != lastColForHero ) {
         lastColForHero = col;
         // Add a new moon in a column for ahead.
         col = Math.ceil( col + G.NB_COLS / 2 ) % G.NB_COLS;
         var ptr = col * 5;
-        var r = ( G.COL_H / 12 ) * ( .7 + .6 * Math.random() );
+        var r = ( G.COL_H / 12 ) * ( .7 + .6 * Rnd() );
 
-        attribs[ptr++] = (col + Math.random()) * G.COL_W;
-        attribs[ptr++] = y + r * (Math.random() - .5);
+        attribs[ptr++] = (col + Rnd()) * G.COL_W;
+        attribs[ptr++] = y + r * (Rnd() - .5);
         attribs[ptr++] = r;
-        attribs[ptr++] = Math.random();
-        attribs[ptr++] = Math.random();
+        attribs[ptr++] = Rnd();
+        attribs[ptr++] = Rnd();
     }
 
     // Collision testing.
-    var idx1 = Math.floor( x / G.COL_W );
+    var idx1 = ( x / G.COL_W ) << 0;  // Math.floor(...)
     var idx0 = (idx1 + G.NB_COLS - 1) % G.NB_COLS;
     var idx2 = (idx1 + 1) % G.NB_COLS;
 
@@ -159,9 +160,9 @@ exports.makeTerrain = function( hole ) {
     ctx.fillRect(0,0,128,128);
     var x, y, r, i, j;
     for( var loop=0; loop<2; loop++ ) {
-        r = Math.random() * 8 + 16;
-        x = Math.random() * 128;
-        y = Math.random() * (96 - r) + 32;
+        r = Rnd() * 8 + 16;
+        x = Rnd() * 128;
+        y = Rnd() * (96 - r) + 32;
         for( i=-1; i<2; i++ ) {
             for( j=-1; j<2; j++ ) {
                 ctx.drawImage( hole, x + i * 128, y + j * 128, r, r );

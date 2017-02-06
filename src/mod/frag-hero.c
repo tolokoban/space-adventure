@@ -9,7 +9,7 @@ uniform sampler2D uniTexture;
 varying vec2 varUV;
 
 void main() {
-  gl_FragColor = texture2D( uniTexture, .5 * varUV );
+  gl_FragColor = texture2D( uniTexture, .495 * varUV );
   float collision = uniFTime - uniCollision;
   if( collision < 1.0 ) {
     gl_FragColor.g *= collision;
