@@ -14,6 +14,7 @@ var GRAVITY = 1600;
 var MAX_SPEED = G.COL_W * 2;
 // Acceleration to reach the MAX_SPEED;
 var ACCEL = 600;
+var accel = 0;
 
 var gl = null;
 // Atributes of all the particles.
@@ -44,6 +45,12 @@ exports.ready = new Promise(function (resolve, reject) {
         resolve();
     });
 });
+
+
+exports.start = function() {
+    accel = ACCEL;
+};
+
 
 exports.reset = function( argGL ) {
     if( !gl ) {
@@ -128,7 +135,7 @@ exports.move = function( time ) {
     // Computing hero's position regarding to his speed.
     x = (x + vx * deltaTime) % G.GAME_W;
     if( vx < MAX_SPEED ) {
-        vx = Math.min( MAX_SPEED, vx + ACCEL * deltaTime );
+        vx = Math.min( MAX_SPEED, vx + accel * deltaTime * (vx < 0 ? 4 : 1) );
     }
     
     if( vy > 0) {
@@ -151,9 +158,10 @@ exports.move = function( time ) {
 };
 
 
-exports.collision = function( time ) {
+exports.collision = function( time, dy ) {
     if( vx < 0 ) return;
     collisionTime = time;
+    vy += (dy < 0 ? 1 : -1) * Math.random() * 1200;
     vx = -Math.abs( vx );
 };
 

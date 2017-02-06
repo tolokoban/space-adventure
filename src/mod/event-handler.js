@@ -19,11 +19,12 @@ document.addEventListener( 'keyup', function(evt) {
     }
 });
 
-var X, Y;
+var X, Y, T;
 document.addEventListener( 'touchstart', function(evt) {
     var t = evt.changedTouches[0];
     X = t.clientX;
     Y = t.clientY;
+    T = Date.now();
 });
 document.addEventListener( 'touchend', function(evt) {
     var t = evt.changedTouches[0];
@@ -33,6 +34,9 @@ document.addEventListener( 'touchend', function(evt) {
         // This is a fire gesture. TODO...
         return;
     }
-    if( y < 0 ) return on( +1 );
-    if( y > 0 ) return on( -1 );
+    var speed = Math.abs(y) / ((Date.now() - T) * window.innerHeight);
+    speed *= 1000;
+    speed = Math.min( 2, Math.max( 1, speed ) );
+    if( y < 0 ) return on( +speed );
+    if( y > 0 ) return on( -speed );
 });

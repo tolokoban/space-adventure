@@ -22,9 +22,12 @@ var prg;
 var lastEmission = 0;
 // Normals map.
 var image;
+// As soon as the  hero steps in a new column, that we  add a new moon
+// in front of him.
+var lastColForHero = -555;
 
 exports.ready = new Promise(function (resolve, reject) {
-    ImageLoader({ moon: "moon.png" }).then(function(data) {        
+    ImageLoader({ moon: "moon.png" }).then(function(data) {
         image = data.moon;
         resolve();
     });
@@ -45,7 +48,7 @@ exports.reset = function( argGL ) {
     for( var i=0; i<G.NB_COLS; i++ ) {
         r = ( G.COL_H / 12 ) * ( .7 + .6 * Math.random() );
         x = Math.random() * G.COL_W + i * G.COL_W;
-        y = Math.random() * (G.COL_H - 2 * r) + r;
+        y = Math.random() * G.COL_H;
 
         attribs[ptr++] = x;
         attribs[ptr++] = y;
@@ -60,7 +63,7 @@ exports.draw = function( time ) {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ZERO, gl.ONE);
     gl.blendEquation(gl.FUNC_ADD);
-    
+
     G.setGlobalUniforms( prg, time );
 
     // Set the active buffer.
@@ -90,9 +93,27 @@ exports.draw = function( time ) {
 exports.move = function( time ) {
     // While the hero is in collision status, it is invincible.
     if( Hero.isInCollision( time ) ) return;
-    
+
     var x = Hero.x();
     var y = Hero.y();
+
+    // Current column.
+    var col = Math.floor( x / G.COL_W );
+    if( col != lastColForHero ) {
+        lastColForHero = col;
+        // Add a new moon in a column for ahead.
+        col = Math.ceil( col + G.NB_COLS / 2 ) % G.NB_COLS;
+        var ptr = col * 5;
+        var r = ( G.COL_H / 12 ) * ( .7 + .6 * Math.random() );
+
+        attribs[ptr++] = (col + Math.random()) * G.COL_W;
+        attribs[ptr++] = y + r * (Math.random() - .5);
+        attribs[ptr++] = r;
+        attribs[ptr++] = Math.random();
+        attribs[ptr++] = Math.random();
+    }
+
+    // Collision testing.
     var idx1 = Math.floor( x / G.COL_W );
     var idx0 = (idx1 + G.NB_COLS - 1) % G.NB_COLS;
     var idx2 = (idx1 + 1) % G.NB_COLS;
@@ -100,7 +121,7 @@ exports.move = function( time ) {
     idx0 *= PARTICLE_SIZE;
     idx1 *= PARTICLE_SIZE;
     idx2 *= PARTICLE_SIZE;
-    
+
     var dis, dx, dy, limit;
 
     dx = attribs[idx0 + 0] - x;
@@ -108,7 +129,7 @@ exports.move = function( time ) {
     limit = Hero.size() + attribs[idx0 + 2];
     dis = dx*dx + dy*dy;
     if( dis < limit * limit ) {
-        return Hero.collision( time );
+        return Hero.collision( time, dy );
     }
 
     dx = attribs[idx1 + 0] - x;
@@ -116,7 +137,7 @@ exports.move = function( time ) {
     limit = Hero.size() + attribs[idx1 + 2];
     dis = dx*dx + dy*dy;
     if( dis < limit * limit ) {
-        return Hero.collision( time );
+        return Hero.collision( time, dy );
     }
 
     dx = attribs[idx2 + 0] - x;
@@ -124,7 +145,7 @@ exports.move = function( time ) {
     limit = Hero.size() + attribs[idx2 + 2];
     dis = dx*dx + dy*dy;
     if( dis < limit * limit ) {
-        return Hero.collision( time );
+        return Hero.collision( time, dy );
     }
 };
 
@@ -137,10 +158,10 @@ exports.makeTerrain = function( hole ) {
     ctx.fillStyle = "rgb(127, 127, 255)";
     ctx.fillRect(0,0,128,128);
     var x, y, r, i, j;
-    for( var loop=0; loop<17; loop++ ) {
-        r = Math.random() * 16 + 8;
+    for( var loop=0; loop<2; loop++ ) {
+        r = Math.random() * 8 + 16;
         x = Math.random() * 128;
-        y = Math.random() * (110 - r) + 9;
+        y = Math.random() * (96 - r) + 32;
         for( i=-1; i<2; i++ ) {
             for( j=-1; j<2; j++ ) {
                 ctx.drawImage( hole, x + i * 128, y + j * 128, r, r );

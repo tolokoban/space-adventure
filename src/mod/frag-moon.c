@@ -44,7 +44,7 @@ void main() {
   float y2 = y1;
   float z2 = -x1 * sin(a) + z1 * cos(a);
   
-  gl_FragColor = vec4( .6, .3, .0, 1.0 );
+  gl_FragColor = texture2D( uniTexture, vec2(.25 * x2 + .25, .25 * y2 + .75) );
 
   vec3 normal = texture2D( uniTexture, vec2(.25 * x2 + .75, .25 * y2 + .25) ).xyz;
   normal = 2.0 * ( normal - vec3(.5, .5, .5) );
