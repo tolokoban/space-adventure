@@ -15,7 +15,7 @@ var Programs = require("programs");
 // Time in seconds between two particles emissions.
 var PERIOD = .01;
 // Number of attributes in a particle.
-var PARTICLE_SIZE = 4;
+var PARTICLE_SIZE = 5;
 // Number of particles.
 var NB_PARTICLES = 100;
 
@@ -61,6 +61,7 @@ exports.draw = function( time ) {
     }
 
     G.setGlobalUniforms( prg, time );
+    prg.$uniCollision = Hero.collisionTime();
 
     // Set the active buffer.
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -71,6 +72,9 @@ exports.draw = function( time ) {
     // attPos
     gl.enableVertexAttribArray( prg.$attPos );
     gl.vertexAttribPointer( prg.$attPos, 4, gl.FLOAT, false, size, 0 );
+    // attLight
+    gl.enableVertexAttribArray( prg.$attLight );
+    gl.vertexAttribPointer( prg.$attLight, 1, gl.FLOAT, false, size, 4 * G.BPE );
 
     // Draw this POINTS.
     gl.drawArrays( gl.POINTS, 0, NB_PARTICLES );
@@ -85,5 +89,6 @@ function addParticle(t, x, y) {
     attribs[idx++] = y - 40;
     attribs[idx++] = t;
     attribs[idx++] = Math.random();
+    attribs[idx++] = Math.min( 1, t - Hero.collisionTime() );    
     particleIndex = (particleIndex + 1) % NB_PARTICLES;
 }

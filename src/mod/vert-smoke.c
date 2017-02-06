@@ -1,73 +1,28 @@
-const float PI = 3.141592653589793;
-
-// Time in seconds.
-uniform float uniVTime;
-// Screen dimensions in pixels.
-uniform float uniScrW;
-uniform float uniScrH;
-// Game's space dimension.
-uniform float uniGameW;
-uniform float uniGameH;
-// Where is the camera pointing?
-uniform float uniCamX;
-uniform float uniCamY;
-
-vec2 game2gl(float xG, float yG) {
-  // Where the camera points, the coords are (0,0).
-  xG -= uniCamX;
-  yG -= uniCamY;
-  // Wrapping.
-  if( xG < -.25 * uniGameW ) xG += uniGameW;
-  else if( xG > .75 * uniGameW ) xG -= uniGameW;
-
-  // Convert game coords into screen coords.
-  // A column must fit entirely in the screens height.
-  float factorS = uniScrH / uniGameH;
-  float xS = xG * factorS - uniScrW * .25;
-  float yS = yG * factorS;
-  // Now, convert screen coords into WebGL coords.
-  // Setting the center.
-  float factorW = 2.0 / uniScrW;
-  float factorH = 2.0 / uniScrH;
-  float x = xS * factorW;
-  float y = yS * factorH;  
-
-  return vec2( x, y );
-}
-
-
-vec2 game2gl(vec2 pos) {
-  return game2gl( pos.x, pos.y );
-}
-
-
-vec2 wrap(vec2 pos) {
-  // Wrapping.
-  if( pos.x < -uniGameW ) pos.x += uniGameW;
-  if( pos.x > uniGameW ) pos.x -= uniGameW;
-  return pos;
-}
-
+#include vertCommon
+#include game2gl  
 
 // Vertex position and texture coords.
 // (x,y) for vertex position, in game's space.
 // z: birth.
 // w: random.
 attribute vec4 attPos;
+// Used for collisions. Smoke become dark after a collision.
+// Then attLight fall to zero.
+attribute float attLight;
 
-varying float varRnd;
+varying float varLight;
 varying float varAge;
 
 const float CURVATURE = 0.5;
 
 void main() {
   // Propagate random to the fragment shader.
-  varRnd = attPos.w;
+  varLight = attLight;
   
   // Point's size...
   float age = uniVTime - attPos.z;
   varAge = age;
-  float size = uniScrH * .05 * (1.0 + varRnd);
+  float size = uniScrH * .05 * (1.0 + attPos.w);
   size *= clamp( age, 0.0, 1.0 );
   size += 30.0;
   if( age > 2.0 ) size = 0.0;

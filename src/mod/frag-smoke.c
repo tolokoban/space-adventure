@@ -1,8 +1,9 @@
 precision mediump float;
 
 uniform float uniFTime;
+uniform float uniCollision;
 
-varying float varRnd;
+varying float varLight;
 varying float varAge;
 
 void main() {
@@ -14,7 +15,7 @@ void main() {
     float a = 2.0 - varAge;
     a = clamp(a, 0.0, 1.0);
     a *= 1.0 - 2.0 * r;
-    float k = .5 * (1.0 + sin(.3 * uniFTime));
+    float k = varLight;
     gl_FragColor = vec4(k, k, k, 0.25 * a);
   }
 }

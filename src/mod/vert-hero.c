@@ -26,7 +26,7 @@ void main() {
   // Apply hero's self rotation.
   angle += uniRotation;
   // Adding some deformations due to "Infinite Improbability Drive".
-  radius *= .95 + .1 * cos(uniVTime * angle);
+  angle *= 1.0 + .03 * cos(.6 * uniVTime * (.777+angle));
   // Coords of this corner.
   vec2 point = game2gl( xG + radius * cos(angle), yG + radius * sin(angle) );
   

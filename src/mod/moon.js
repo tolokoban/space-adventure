@@ -6,10 +6,11 @@
 var G = require("global");
 var Hero = require("hero");
 var Programs = require("programs");
+var ImageLoader = require("image-loader");
 
 
 // Number of attributes for an obstacle.
-var PARTICLE_SIZE = 4;
+var PARTICLE_SIZE = 5;
 
 var gl = null;
 // Atributes of all the obstacles.
@@ -19,10 +20,14 @@ var buffer;
 var prg;
 // Last time a particle was created.
 var lastEmission = 0;
-
+// Normals map.
+var image;
 
 exports.ready = new Promise(function (resolve, reject) {
-    resolve();
+    ImageLoader({ moon: "moon.png" }).then(function(data) {        
+        image = data.moon;
+        resolve();
+    });
 });
 
 exports.reset = function( argGL ) {
@@ -38,14 +43,15 @@ exports.reset = function( argGL ) {
     var r, x, y;
 
     for( var i=0; i<G.NB_COLS; i++ ) {
-        r = ( G.COL_H / 6 ) * ( .7 + .6 * Math.random() );
+        r = ( G.COL_H / 12 ) * ( .7 + .6 * Math.random() );
         x = Math.random() * G.COL_W + i * G.COL_W;
         y = Math.random() * (G.COL_H - 2 * r) + r;
 
-        attribs[ptr++] = 1;  // Type.
         attribs[ptr++] = x;
         attribs[ptr++] = y;
         attribs[ptr++] = r;
+        attribs[ptr++] = Math.random();
+        attribs[ptr++] = Math.random();
     }
 };
 
@@ -63,15 +69,18 @@ exports.draw = function( time ) {
     gl.bufferData(gl.ARRAY_BUFFER, attribs, gl.STATIC_DRAW);
 
     var size = G.BPE * PARTICLE_SIZE;
-    // attTypd
-    gl.enableVertexAttribArray( prg.$attType );
-    gl.vertexAttribPointer( prg.$attType, 1, gl.FLOAT, false, size, 0 );
     // attPos
     gl.enableVertexAttribArray( prg.$attPos );
-    gl.vertexAttribPointer( prg.$attPos, 2, gl.FLOAT, false, size, 1 * G.BPE );
+    gl.vertexAttribPointer( prg.$attPos, 2, gl.FLOAT, false, size, 0 * G.BPE );
     // attSize
     gl.enableVertexAttribArray( prg.$attSize );
-    gl.vertexAttribPointer( prg.$attSize, 1, gl.FLOAT, false, size, 3 * G.BPE );
+    gl.vertexAttribPointer( prg.$attSize, 1, gl.FLOAT, false, size, 2 * G.BPE );
+    // attRnd1
+    gl.enableVertexAttribArray( prg.$attRnd1 );
+    gl.vertexAttribPointer( prg.$attRnd1, 1, gl.FLOAT, false, size, 3 * G.BPE );
+    // attRnd2
+    gl.enableVertexAttribArray( prg.$attRnd2 );
+    gl.vertexAttribPointer( prg.$attRnd2, 1, gl.FLOAT, false, size, 3 * G.BPE );
 
     // Draw this POINTS.
     gl.drawArrays( gl.POINTS, 0, G.NB_COLS );
@@ -79,6 +88,9 @@ exports.draw = function( time ) {
 
 
 exports.move = function( time ) {
+    // While the hero is in collision status, it is invincible.
+    if( Hero.isInCollision( time ) ) return;
+    
     var x = Hero.x();
     var y = Hero.y();
     var idx1 = Math.floor( x / G.COL_W );
@@ -91,27 +103,49 @@ exports.move = function( time ) {
     
     var dis, dx, dy, limit;
 
-    dx = attribs[idx0 + 1] - x;
-    dy = attribs[idx0 + 2] - y;
-    limit = attribs[idx0 + 3];
+    dx = attribs[idx0 + 0] - x;
+    dy = attribs[idx0 + 1] - y;
+    limit = Hero.size() + attribs[idx0 + 2];
     dis = dx*dx + dy*dy;
     if( dis < limit * limit ) {
         return Hero.collision( time );
     }
 
-    dx = attribs[idx1 + 1] - x;
-    dy = attribs[idx1 + 2] - y;
-    limit = attribs[idx1 + 3];
+    dx = attribs[idx1 + 0] - x;
+    dy = attribs[idx1 + 1] - y;
+    limit = Hero.size() + attribs[idx1 + 2];
     dis = dx*dx + dy*dy;
     if( dis < limit * limit ) {
         return Hero.collision( time );
     }
 
-    dx = attribs[idx2 + 1] - x;
-    dy = attribs[idx2 + 2] - y;
-    limit = attribs[idx2 + 3];
+    dx = attribs[idx2 + 0] - x;
+    dy = attribs[idx2 + 1] - y;
+    limit = Hero.size() + attribs[idx2 + 2];
     dis = dx*dx + dy*dy;
     if( dis < limit * limit ) {
         return Hero.collision( time );
     }
+};
+
+
+exports.makeTerrain = function( hole ) {
+    var canvas = document.createElement( "canvas" );
+    canvas.setAttribute( "width", 128 );
+    canvas.setAttribute( "height", 128 );
+    var ctx = canvas.getContext( "2d" );
+    ctx.fillStyle = "rgb(127, 127, 255)";
+    ctx.fillRect(0,0,128,128);
+    var x, y, r, i, j;
+    for( var loop=0; loop<17; loop++ ) {
+        r = Math.random() * 16 + 8;
+        x = Math.random() * 128;
+        y = Math.random() * (110 - r) + 9;
+        for( i=-1; i<2; i++ ) {
+            for( j=-1; j<2; j++ ) {
+                ctx.drawImage( hole, x + i * 128, y + j * 128, r, r );
+            }
+        }
+    }
+    return canvas;
 };

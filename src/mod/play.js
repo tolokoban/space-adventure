@@ -45,7 +45,7 @@ var heroAttribs = new Float32Array(4 * 4);   // [x, y, u, v] * 4.
 var heroTexture;
 
 var blink = false;
-
+var canvasForTextures;
 
 //========================= init().
 
@@ -53,7 +53,16 @@ exports.init = function( argGl, argCanvas ) {
     gl = argGl;
     canvas = argCanvas;
     return new Promise(function (resolve, reject) {
-        Hero.ready.then( resolve );
+        ImageLoader({ hero: "hero.png", moon: "moon.png" }).then(function(data) {
+            var canvas = document.createElement( "canvas" );
+            canvas.setAttribute( "width", 256 );
+            canvas.setAttribute( "height", 256 );
+            var ctx = canvas.getContext( "2d" );
+            ctx.drawImage( data.hero, 0, 0, 128, 128 );
+            ctx.drawImage( Moon.makeTerrain( data.moon ), 128, 0, 128, 128 );
+            canvasForTextures = canvas;
+            resolve();
+        });
     });
 };
 
@@ -64,6 +73,24 @@ exports.reset = function() {
     Hero.reset( gl );
     Moon.reset( gl );
     Smoke.reset( gl );
+
+    // Prepare texture for hero.
+    var texture = gl.createTexture();
+    // Create a texture.
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    // Set the parameters so we can render any size image.
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+    // Upload the image into the texture.
+    gl.activeTexture( gl.TEXTURE0 );
+    gl.bindTexture( gl.TEXTURE_2D, texture );
+    gl.texImage2D(
+        gl.TEXTURE_2D, 0, gl.RGBA,
+        gl.RGBA, gl.UNSIGNED_BYTE,
+        canvasForTextures);
 };
 
 
