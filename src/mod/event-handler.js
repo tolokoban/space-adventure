@@ -26,7 +26,7 @@ document.addEventListener( 'touchstart', function(evt) {
     Y = t.clientY;
     T = Date.now();
 });
-document.addEventListener( 'touchend', function(evt) {
+document.addEventListener( 'touchmove', function(evt) {
     var t = evt.changedTouches[0];
     var x = t.clientX - X;
     var y = t.clientY - Y;
@@ -39,4 +39,8 @@ document.addEventListener( 'touchend', function(evt) {
     speed = Math.min( 2, speed < 1 ? 1 : speed );
     if( y < 0 ) return on( +speed );
     if( y > 0 ) return on( -speed );
+
+    X = t.clientX;
+    Y = t.clientY;
+    T = Date.now();
 });
