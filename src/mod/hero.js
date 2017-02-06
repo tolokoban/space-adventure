@@ -10,6 +10,11 @@ var EventHandler = require("event-handler");
 
 // This is what brakes the movement.
 var GRAVITY = 1600;
+// Maximum horizontal speed.
+var MAX_SPEED = G.COL_W * 2;
+// Acceleration to reach the MAX_SPEED;
+var ACCEL = 600;
+var accel = 0;
 
 var gl = null;
 // Atributes of all the particles.
@@ -41,6 +46,12 @@ exports.ready = new Promise(function (resolve, reject) {
     });
 });
 
+
+exports.start = function() {
+    accel = ACCEL;
+};
+
+
 exports.reset = function( argGL ) {
     if( !gl ) {
         gl = argGL;
@@ -52,33 +63,14 @@ exports.reset = function( argGL ) {
     lastTime = 0;
     x = .5 * (G.NB_COLS * G.COL_W);
     y = .5 * G.COL_H;
-    vx = G.COL_W * .8;
+    vx = 0;
     vy = 0;
     size = G.COL_H / 16;
-    console.log( x, y, G );    
-
-    // Prepare texture for hero.
-    texture = gl.createTexture();
-    // Create a texture.
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    // Set the parameters so we can render any size image.
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-
-    // Upload the image into the texture.
-    gl.activeTexture( gl.TEXTURE0 );
-    gl.bindTexture( gl.TEXTURE_2D, texture );
-    gl.pixelStorei( gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false );
-    gl.texImage2D(
-        gl.TEXTURE_2D, 0, gl.RGBA,
-        //heroImg.width, heroImg.height, 0,
-        gl.RGBA, gl.UNSIGNED_BYTE,
-        image);
-
+    // Last collision was long time ago.
+    collisionTime = -666;
+    
     EventHandler.on(function( dir ) {
-        vy = 666 * dir;
+        vy = 777 * dir;
     });
     EventHandler.start();
 };
@@ -89,6 +81,8 @@ exports.draw = function( time ) {
 
     G.setGlobalUniforms( prg, time );
 
+    prg.$uniCollision = collisionTime;
+    
     // Update  hero position.   There  are 4  vertices.   Each one  is
     // defined  by  a  center,  a  radius and  an  angle.   This  made
     // rotations easier.
@@ -138,9 +132,12 @@ exports.move = function( time ) {
     var deltaTime = time - lastTime;
     lastTime = time;
     
-    // Computing hero's position regarding his speed.
-    x = (G.COL_W * .5 + vx * time) % G.GAME_W;
-
+    // Computing hero's position regarding to his speed.
+    x = (x + vx * deltaTime) % G.GAME_W;
+    if( vx < MAX_SPEED ) {
+        vx = Math.min( MAX_SPEED, vx + accel * deltaTime * (vx < 0 ? 4 : 1) );
+    }
+    
     if( vy > 0) {
         vy -= GRAVITY * deltaTime;
         if( vy < 0 ) vy = 0;
@@ -161,10 +158,23 @@ exports.move = function( time ) {
 };
 
 
-exports.collision = function( time ) {
+exports.collision = function( time, dy ) {
+    if( vx < 0 ) return;
     collisionTime = time;
-    //console.info("[hero] collisionTime=...", collisionTime);
+    vy += (dy < 0 ? 1 : -1) * Math.random() * 1200;
+    vx = -Math.abs( vx );
 };
+
+
+exports.collisionTime = function() {
+    return collisionTime;
+};
+
+
+exports.isInCollision = function( time ) {
+    return time - collisionTime < 1;
+};
+
 
 exports.x = function() { return x; };
 exports.y = function() { return y; };

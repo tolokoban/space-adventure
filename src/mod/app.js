@@ -1,11 +1,11 @@
 "use strict";
 var WebGL = require("tfw.webgl");
+var Alert = require("wdg.modal").alert;
 var Play = require("play");
 
 var canvas = document.getElementById( "canvas" );
 var renderer = new WebGL.Renderer( canvas );
 var playReady = Play.init( renderer.gl, canvas );
-
 
 playReady.then(function() {
     Play.reset();
@@ -21,3 +21,10 @@ playReady.then(function() {
         Play.draw( time );
     });
 });
+
+Alert(
+    "<html>Quick slides up and down to move your spaceship.<br/>Or use the keyboard's arrow keys.",
+    function() {
+        window.setTimeout( Play.start.bind( Play ), 300 );
+    }
+);

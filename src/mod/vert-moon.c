@@ -1,22 +1,25 @@
 #include vertCommon
 #include game2gl
   
-// Obstacle's type.
-attribute float attType;
 // Vertex position and texture coords.
 // (x,y) for vertex position, in game's space.
 // (z,w) for (u,v) texture coords.
 attribute vec2 attPos;
 // Point size.
 attribute float attSize;
+attribute float attRnd1;
+attribute float attRnd2;
 
 varying float varSize;
-varying float varAngle;
+varying float varRnd1;
+varying float varRnd2;
 
 
 void main() {
   // Propagate size to the fragment shader.
   varSize = attSize;
+  varRnd1 = attRnd1;
+  varRnd2 = attRnd2;
   // Game's space coords.
   vec2 point = game2gl( attPos );
   // GL has a square space with coords between -1 and +1.

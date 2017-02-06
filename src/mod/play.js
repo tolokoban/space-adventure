@@ -29,41 +29,68 @@ var gl;
 // Canvas. Used to get display width and height.
 var canvas;
 
-// Hero variables.
-var heroX, heroY;
-var heroVX;  // Horizontal movement of the Hero in space's pixels per second.
-var heroVY;  // Vertical speed in space's pixels per second.
-var heroCol; // Current column's index in which the hero is.
-var heroLastTime; // We keep the time of the hero's birth.
-var heroImg; // Image of the hero's spaceship.
-var heroSize; // Height if the hero in space's pixels.
-
-// WebGL stuff for the hero.
-var heroProgram;   // Shader program.
-var heroBuffer;    // Will contain the attributes in GL memory.
-var heroAttribs = new Float32Array(4 * 4);   // [x, y, u, v] * 4.
-var heroTexture;
-
-var blink = false;
-
+var canvasForTextures;
+// Using the time of the previous frame to know the time delta.
+var lastTime = 0;
 
 //========================= init().
 
 exports.init = function( argGl, argCanvas ) {
+    lastTime = 0;
     gl = argGl;
     canvas = argCanvas;
     return new Promise(function (resolve, reject) {
-        Hero.ready.then( resolve );
+        ImageLoader({
+            hero: "hero.png",
+            moon: "moon.png",
+            earth: "earth.png"
+        }).then(function(data) {
+            var canvas = document.createElement( "canvas" );
+            canvas.setAttribute( "width", 256 );
+            canvas.setAttribute( "height", 256 );
+            var ctx = canvas.getContext( "2d" );
+            ctx.drawImage( data.hero, 0, 0, 128, 128 );
+            ctx.drawImage( Moon.makeTerrain( data.moon ), 128, 0, 128, 128 );
+            ctx.drawImage( data.earth, 0, 128, 128, 128 );
+            canvasForTextures = canvas;
+            resolve();
+        });
     });
+};
+
+
+//========================= start().
+
+exports.start = function() {
+    Hero.start();
 };
 
 
 //========================= reset().
 
 exports.reset = function() {
+    lastTime = 0;
     Hero.reset( gl );
     Moon.reset( gl );
     Smoke.reset( gl );
+
+    // Prepare texture for hero.
+    var texture = gl.createTexture();
+    // Create a texture.
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    // Set the parameters so we can render any size image.
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+    // Upload the image into the texture.
+    gl.activeTexture( gl.TEXTURE0 );
+    gl.bindTexture( gl.TEXTURE_2D, texture );
+    gl.texImage2D(
+        gl.TEXTURE_2D, 0, gl.RGBA,
+        gl.RGBA, gl.UNSIGNED_BYTE,
+        canvasForTextures);
 };
 
 
@@ -73,39 +100,16 @@ exports.draw = function( time ) {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     // Converting time to seconds instead of ms.
-    time *= .001;
-
-    Hero.move( time );
-    Moon.move( time );
-
-    // Setting the hero's birth time.
-    if( heroLastTime == 0 ) {
-        heroLastTime = time;
-        heroCol = 0;
+    time *= .001;    
+    if( lastTime == 0 ) {
+        lastTime = time;
         return;
     }
-    var deltaTime = time - heroLastTime;
-
-    // Computing hero's position regarding his speed.
-    heroX = (G.COL_W * .5 + heroVX * time) % G.GAME_W;
-
-    if( heroVY > 0) {
-        heroVY -= GRAVITY * deltaTime;
-        if( heroVY < 0 ) heroVY = 0;
-    }
-    else if( heroVY < 0) {
-        heroVY += GRAVITY * deltaTime;
-        if( heroVY > 0 ) heroVY = 0;
-    }
-    heroY += heroVY * deltaTime;
-    if( heroY > G.GAME_H - heroSize ) {
-        heroY = G.GAME_H - heroSize;
-        heroVY = -Math.abs( heroVY );
-    }
-    else if( heroY < heroSize ) {
-        heroY = heroSize;
-        heroVY = Math.abs( heroVY );
-    }
+    var deltaTime = time - lastTime;
+    lastTime = time;
+    
+    Hero.move( time );
+    Moon.move( time );
 
     G.cameraX = Hero.x();
     G.cameraY = G.COL_H * .5;
@@ -115,7 +119,6 @@ exports.draw = function( time ) {
     Hero.draw( time );
     Smoke.draw( time );
 
-    heroLastTime = time;
 };
 
 
@@ -130,7 +133,7 @@ function clearScreen() {
     // Enable blending for transprent textures.
     gl.enable(gl.BLEND);
     // Define the filling color.
-    gl.clearColor(28 / 255, 134 / 255, 182 / 255, 1.0);
+    gl.clearColor(28 / 255, 34 / 255, 67 / 255, 1.0);
     // Clear the current screen.
     gl.clear(gl.COLOR_BUFFER_BIT);
 }

@@ -9,6 +9,10 @@
     "512": "/icon-512.png"
   },
   "name": "space-adventure",
+<<<<<<< HEAD
+  "version": "0.0.7",
+=======
   "version": "0.0.11",
+>>>>>>> 025f3c2ad7856088b44fe3a5692d0e9e70545919
   "description": "WebGL clone of Cavalcadeur's original game."
 }
