@@ -47,12 +47,12 @@ exports.init = function( argGl, argCanvas ) {
             earth: "earth.png"
         }).then(function(data) {
             var canvas = document.createElement( "canvas" );
-            canvas.setAttribute( "width", 256 );
-            canvas.setAttribute( "height", 256 );
+            canvas.setAttribute( "width", 512 );
+            canvas.setAttribute( "height", 512 );
             var ctx = canvas.getContext( "2d" );
-            ctx.drawImage( data.hero, 0, 0, 128, 128 );
-            ctx.drawImage( Moon.makeTerrain( data.moon ), 128, 0, 128, 128 );
-            ctx.drawImage( data.earth, 0, 128, 128, 128 );
+            ctx.drawImage( data.hero, 0, 0, 256, 256 );
+            ctx.drawImage( Moon.makeTerrain( data.moon ), 256, 0, 256, 256 );
+            ctx.drawImage( data.earth, 0, 256, 256, 256 );
             canvasForTextures = canvas;
             resolve();
         });
@@ -83,8 +83,8 @@ exports.reset = function() {
     // Set the parameters so we can render any size image.
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
     // Upload the image into the texture.
     gl.activeTexture( gl.TEXTURE0 );

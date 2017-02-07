@@ -12,9 +12,8 @@ void main() {
   float xx = x * cos(a) + y * sin(a);
   float yy = -x * sin(a) + y * cos(a);
   float r = abs(xx*xx - yy*yy);
-  if( r > 0.02 ) gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+  if( r > 0.01 ) gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
   else {
-    gl_FragColor = vec4(1.0, 1.0 - varRnd * .5, varRnd, varZ * .2);
-    //gl_FragColor = vec4( varRnd, varRnd, varRnd, 1.0);
+    gl_FragColor = vec4(1.0, 1.0 - varRnd * .5, varRnd, varZ * .5);
   }
 }

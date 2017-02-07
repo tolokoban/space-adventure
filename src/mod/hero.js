@@ -136,7 +136,7 @@ exports.move = function( time ) {
     lastTime = time;
     
     // Computing hero's position regarding to his speed.
-    x = (x + vx * deltaTime) % G.GAME_W;
+    x = x + vx * deltaTime;
     if( vx < MAX_SPEED ) {
         vx = Math.min( MAX_SPEED, vx + accel * deltaTime * (vx < 0 ? 4 : 1) );
     }

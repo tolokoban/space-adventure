@@ -1,6 +1,6 @@
 "use strict";
 var WebGL = require("tfw.webgl");
-var Alert = require("wdg.modal").alert;
+var Alert = require("alert");
 var Play = require("play");
 
 var canvas = document.getElementById( "canvas" );
@@ -24,7 +24,5 @@ playReady.then(function() {
 
 Alert(
     "<html>Quick slides up and down to move your spaceship.<br/>Or use the keyboard's arrow keys.",
-    function() {
-        window.setTimeout( Play.start.bind( Play ), 300 );
-    }
+    Play.start.bind( Play )
 );

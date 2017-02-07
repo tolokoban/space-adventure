@@ -43,19 +43,14 @@ exports.reset = function( argGL ) {
     attribs = new Float32Array( PARTICLE_SIZE * G.NB_COLS );
     buffer = gl.createBuffer();
 
+    // The space is empty before the apparition of first moons.
     var ptr = 0;
-    var r, x, y;
-
     for( var i=0; i<G.NB_COLS; i++ ) {
-        r = ( G.COL_H / 12 ) * ( .7 + .6 * Rnd() );
-        x = Rnd() * G.COL_W + i * G.COL_W;
-        y = Rnd() * G.COL_H;
-
-        attribs[ptr++] = x;
-        attribs[ptr++] = y;
-        attribs[ptr++] = r;
-        attribs[ptr++] = Rnd();
-        attribs[ptr++] = Rnd();
+        attribs[ptr++] = 0;
+        attribs[ptr++] = 0;
+        attribs[ptr++] = 0;
+        attribs[ptr++] = 0;
+        attribs[ptr++] = 0;
     }
 };
 
@@ -99,73 +94,87 @@ exports.move = function( time ) {
     var y = Hero.y();
 
     // Current column.
-    var col = ( x / G.COL_W ) << 0; // optimization of the following code: Math.floor( x / G.COL_W );
+    var col = Math.floor( x / G.COL_W );
     if( col != lastColForHero ) {
+        // Each time the hero goes to another column, we have to create a new moon.
         lastColForHero = col;
+        // `col` can be hugely greater than G.NB_COLS because `Hero.x()` is always growing.
+        var realCol = col % G.NB_COLS;
+        // Position of the column's left side.
+        var colX = col * G.COL_W;
         // Add a new moon in a column for ahead.
-        col = Math.ceil( col + G.NB_COLS / 2 ) % G.NB_COLS;
-        var ptr = col * 5;
+        var shiftCol = Math.ceil( .6 * G.NB_COLS );
+        var nextCol = ( realCol + shiftCol ) % G.NB_COLS;
+        // Pointer to the column's attributes.
+        var ptr = nextCol * PARTICLE_SIZE;
+        // Radius of the new moon.
         var r = ( G.COL_H / 12 ) * ( .7 + .6 * Rnd() );
-
-        attribs[ptr++] = (col + Rnd()) * G.COL_W;
-        attribs[ptr++] = y + r * (Rnd() - .5);
+        // Setting x position.
+        attribs[ptr++] = colX + (shiftCol + Rnd()) * G.COL_W;
+        // y is set in order to put the moon in front of the hero.
+        attribs[ptr++] = y + r * 2.0 * (Rnd() - .5);
+        // The radius.
         attribs[ptr++] = r;
+        // Random values to manage moon's own rotation.
         attribs[ptr++] = Rnd();
         attribs[ptr++] = Rnd();
     }
 
     // Collision testing.
-    var idx1 = ( x / G.COL_W ) << 0;  // Math.floor(...)
+    var idx1 = Math.floor( x / G.COL_W ) % G.NB_COLS;
     var idx0 = (idx1 + G.NB_COLS - 1) % G.NB_COLS;
     var idx2 = (idx1 + 1) % G.NB_COLS;
 
-    idx0 *= PARTICLE_SIZE;
-    idx1 *= PARTICLE_SIZE;
-    idx2 *= PARTICLE_SIZE;
+    var ptr0 = idx0 * PARTICLE_SIZE;
+    var ptr1 = idx1 * PARTICLE_SIZE;
+    var ptr2 = idx2 * PARTICLE_SIZE;
 
     var dis, dx, dy, limit;
 
-    dx = attribs[idx0 + 0] - x;
-    dy = attribs[idx0 + 1] - y;
-    limit = Hero.size() + attribs[idx0 + 2];
+    dx = attribs[ptr0 + 0] - x;
+    dy = attribs[ptr0 + 1] - y;
+    limit = Hero.size() + attribs[ptr0 + 2];
     dis = dx*dx + dy*dy;
     if( dis < limit * limit ) {
-        return Hero.collision( time, dy );
+        Hero.collision( time, dy );
+        return;
     }
 
-    dx = attribs[idx1 + 0] - x;
-    dy = attribs[idx1 + 1] - y;
-    limit = Hero.size() + attribs[idx1 + 2];
+    dx = attribs[ptr1 + 0] - x;
+    dy = attribs[ptr1 + 1] - y;
+    limit = Hero.size() + attribs[ptr1 + 2];
     dis = dx*dx + dy*dy;
     if( dis < limit * limit ) {
-        return Hero.collision( time, dy );
+        Hero.collision( time, dy );
+        return;
     }
 
-    dx = attribs[idx2 + 0] - x;
-    dy = attribs[idx2 + 1] - y;
-    limit = Hero.size() + attribs[idx2 + 2];
+    dx = attribs[ptr2 + 0] - x;
+    dy = attribs[ptr2 + 1] - y;
+    limit = Hero.size() + attribs[ptr2 + 2];
     dis = dx*dx + dy*dy;
     if( dis < limit * limit ) {
-        return Hero.collision( time, dy );
+        Hero.collision( time, dy );
+        return;
     }
 };
 
 
 exports.makeTerrain = function( hole ) {
     var canvas = document.createElement( "canvas" );
-    canvas.setAttribute( "width", 128 );
-    canvas.setAttribute( "height", 128 );
+    canvas.setAttribute( "width", 256 );
+    canvas.setAttribute( "height", 256 );
     var ctx = canvas.getContext( "2d" );
     ctx.fillStyle = "rgb(127, 127, 255)";
-    ctx.fillRect(0,0,128,128);
+    ctx.fillRect(0,0,256,256);
     var x, y, r, i, j;
-    for( var loop=0; loop<2; loop++ ) {
+    for( var loop=0; loop<13; loop++ ) {
         r = Rnd() * 8 + 16;
-        x = Rnd() * 128;
-        y = Rnd() * (96 - r) + 32;
+        x = Rnd() * (192 - r) + 64;
+        y = Rnd() * (192 - r) + 64;
         for( i=-1; i<2; i++ ) {
             for( j=-1; j<2; j++ ) {
-                ctx.drawImage( hole, x + i * 128, y + j * 128, r, r );
+                ctx.drawImage( hole, x + i * 256, y + j * 256, r * .5, r );
             }
         }
     }

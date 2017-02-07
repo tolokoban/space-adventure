@@ -28,30 +28,47 @@ void main() {
     gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
     return;
   }
-  if( radius > .8 ) {
+  if( radius > .9 ) {
     gl_FragColor = vec4(1.0, 1.0, 1.0, 0.5);
     return;
   }
   // Therefore, the length of the (x,y,z) vector must be 1 and x*x + y*y + z*z = 1.
   float z = sqrt( 1.0 - x*x - y*y );
   // Rotation.
-  float a = uniFTime * .5 * (.2 + varRnd1);
+  float a = uniFTime * .75 * (.2374 + varRnd1);
   float x1 = x;
   float y1 = y * cos(a) + z * sin(a);
   float z1 = -y * sin(a) + z * cos(a);
-  a = uniFTime * .5 * (.2 + varRnd2);
+  a = uniFTime * .75 * (.3797 + varRnd2);
   float x2 = x1 * cos(a) + z1 * sin(a);
   float y2 = y1;
   float z2 = -x1 * sin(a) + z1 * cos(a);
   
-  gl_FragColor = texture2D( uniTexture, vec2(.25 * x2 + .25, .25 * y2 + .75) );
-
-  vec3 normal = texture2D( uniTexture, vec2(.25 * x2 + .75, .25 * y2 + .25) ).xyz;
-  normal = 2.0 * ( normal - vec3(.5, .5, .5) );
-  
-  float lat = -asin( normal.y );
+  float lat = -asin( y2 );
   float r = cos( lat );
   float lng = 0.0;
+  if( r > 0.0 ) {
+    lng = asin( x2 / r );
+  }
+  lng += PI * .5;   // Now lng is between 0 and PI.
+  if( z2 < .0 ) {
+    // We must adjust for the backface of the moon.
+    lng = 2.0 * PI - lng;
+  }  
+  
+  vec2 uv = vec2(.5 * lng / PI, .5 - lat / PI);
+  vec2 uvColor = .5 * uv + vec2(.0, .5);
+  //gl_FragColor = vec4(uv.x, uv.x, uv.x, 1.0);
+  gl_FragColor = texture2D( uniTexture, uvColor );
+
+  // Now, we want to compute normals to apply lighting effects.
+  vec2 uvNormal = .5 * uv + vec2(.5, .0);
+  vec3 normal = texture2D( uniTexture, uvNormal ).xyz;
+  normal = 2.0 * ( normal - vec3(.5, .5, .5) );
+  
+  lat = -asin( normal.y );
+  r = cos( lat );
+  lng = 0.0;
   if( r > 0.0 ) {
     lng = asin( normal.x / r );
   }
