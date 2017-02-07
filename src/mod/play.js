@@ -51,7 +51,7 @@ exports.init = function( argGl, argCanvas ) {
             canvas.setAttribute( "height", 512 );
             var ctx = canvas.getContext( "2d" );
             ctx.drawImage( data.hero, 0, 0, 256, 256 );
-            ctx.drawImage( Moon.makeTerrain( data.moon ), 256, 0, 256, 256 );
+            ctx.drawImage( data.moon, 256, 0, 256, 256 );
             ctx.drawImage( data.earth, 0, 256, 256, 256 );
             canvasForTextures = canvas;
             resolve();
