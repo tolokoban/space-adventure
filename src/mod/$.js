@@ -1,4 +1,4 @@
-exports.config={"name":"\"space-adventure\"","description":"\"WebGL clone of Cavalcadeur's original game.\"","author":"\"tolokoban\"","version":"\"0.0.25\"","major":"0","minor":"0","revision":"25","date":"2017-02-07T20:43:37.000Z","consts":{}};
+exports.config={"name":"\"space-adventure\"","description":"\"WebGL clone of Cavalcadeur's original game.\"","author":"\"tolokoban\"","version":"\"0.0.30\"","major":"0","minor":"0","revision":"30","date":"2017-02-07T21:28:07.000Z","consts":{}};
 var currentLang = null;
 exports.lang = function(lang) {
     if (lang === undefined) {

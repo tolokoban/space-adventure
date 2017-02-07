@@ -1,7 +1,13 @@
+var VERSION = 1;
 var CACHE = 'cache-and-update';
 
 self.addEventListener('install', function(evt) {
   console.log('The service worker is being installed.');
+  evt.waitUntil(precache());
+});
+
+self.addEventListener('activate', function(evt) {
+  console.log('The service worker is being activated.');
   evt.waitUntil(precache());
 });
 
@@ -22,8 +28,8 @@ function precache() {
       './css/app/earth.png',
       './css/app/hero.mini.png',
       './css/app/hero.png',
-      './css/app/icon-512.png',
       './css/app/icon-192.png',
+      './css/app/icon-512.png',
       './css/app/moon.mini.png',
       './css/app/moon.png'
     ]);
