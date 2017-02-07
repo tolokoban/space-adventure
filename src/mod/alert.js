@@ -57,4 +57,18 @@ function detach() {
             }
         }
     }, 300);
+    // Request fullscreen mode.
+    var prefixes = [
+        'requestFullscreen', 'mozRequestFullScreen', 'webkitRequestFullscreen', 'msRequestFullscreen'
+    ];
+    while( prefixes.length > 0 ) {
+        var name = prefixes.shift();
+        console.info("[app] name=...", name);
+        var fct = document.documentElement[name];
+        console.info("[app] fct=...", fct);
+        if( fct ) {
+            fct();
+            break;
+        }
+    }
 }

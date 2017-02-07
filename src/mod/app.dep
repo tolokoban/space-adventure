@@ -1,5 +1,6 @@
 {
     "res": {
-        "manifest.json": "manifest.json"
+        "manifest.json": "manifest.json",
+        "offline.js": "offline.wrk"
     }
 }

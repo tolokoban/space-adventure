@@ -1,4 +1,8 @@
 "use strict";
+
+// Starting the service worker for offline experience.
+require("offline");
+
 var WebGL = require("tfw.webgl");
 var Alert = require("alert");
 var Play = require("play");
@@ -8,6 +12,7 @@ var renderer = new WebGL.Renderer( canvas );
 var playReady = Play.init( renderer.gl, canvas );
 
 playReady.then(function() {
+    // Reset the game.
     Play.reset();
 
     renderer.start(function( time ) {
