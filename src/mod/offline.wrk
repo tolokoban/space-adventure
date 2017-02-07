@@ -22,8 +22,8 @@ function precache() {
       './css/app/earth.png',
       './css/app/hero.mini.png',
       './css/app/hero.png',
-      './css/app/icon-192.png',
       './css/app/icon-512.png',
+      './css/app/icon-192.png',
       './css/app/moon.mini.png',
       './css/app/moon.png'
     ]);
