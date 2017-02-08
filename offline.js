@@ -1,22 +1,3 @@
-var CACHE = 'cache-and-update';
-
-self.addEventListener('install', function(evt) {
-    console.log('The service worker is being installed.');
-    evt.waitUntil(precache());
-});
-
-self.addEventListener('activate', function(evt) {
-    console.log('The service worker is being activated.');
-    evt.waitUntil(precache());
-});
-
-self.addEventListener('fetch', function(evt) {
-    console.log('The service worker is serving the asset.');
-    console.log(evt.request.url);
-    evt.respondWith(fromCache(evt.request));
-    evt.waitUntil(update(evt.request));
-});
-
 function precache() {
     return caches.open(CACHE).then(function (cache) {
         return cache.addAll([
@@ -51,3 +32,35 @@ function update(request) {
         });
     });
 }
+
+
+var CACHE = 'cache-and-update';
+
+self.addEventListener('install', function(evt) {
+    console.log('[SW] install.');
+    evt.waitUntil(precache());
+});
+
+self.addEventListener('activate', function(evt) {
+    console.log('[SW] activate.');
+    evt.waitUntil(precache());
+});
+
+self.addEventListener('fetch', function(evt) {
+    console.log('[SW] fetch. ', evt.request.url);
+    evt.respondWith(fromCache(evt.request));
+    evt.waitUntil(update(evt.request));
+});
+
+self.addEventListener('message', function(evt) {
+    console.log('[SW] message.');
+});
+
+self.addEventListener('sync', function(evt) {
+    console.log('[SW] sync.');
+});
+
+self.addEventListener('push', function(evt) {
+    console.log('[SW] push.');
+});
+
