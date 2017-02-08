@@ -5,7 +5,9 @@ if( navigator.serviceWorker ) {
         scope: '/space-adventure/'
     });
 
-    navigator.serviceWorker.ready.then(function() {
-        console.info( "Service Worker is ready!" );
+    navigator.serviceWorker.ready.then(function(reg) {
+        console.info( "Service Worker is ready for ", reg.scope );
+    }).catch(function(err) {
+        console.error("Registration failed with: ", err);
     });
 }

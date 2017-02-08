@@ -8,6 +8,7 @@ const float Z = 0.7071067811865476;
 
 const vec4 WHITE = vec4( 1.0, 1.0, 1.0, 1.0 );
 const vec4 BLACK = vec4( 0.0, 0.0, 0.0, 1.0 );
+const vec4 ORANGE = vec4( 1.0, 0.5, 0.0, 1.0 );
 
 uniform float uniFTime;
 
@@ -17,6 +18,7 @@ uniform sampler2D uniTexture;
 varying float varSize;
 varying float varRnd1;
 varying float varRnd2;
+varying float varDeath;
 
 
 void main() {
@@ -24,13 +26,13 @@ void main() {
   float x = gl_PointCoord.x * 2.0 - 1.0;
   float y = gl_PointCoord.y * 2.0 - 1.0;
   float radius = x*x + y*y;
+  float alpha = 1.0;
   if( radius > 1.0 ) {
     gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
     return;
   }
   if( radius > .9 ) {
-    gl_FragColor = vec4(1.0, 1.0, 1.0, 0.5);
-    return;
+    alpha = 10.0 * (1.0 - radius);
   }
   // Therefore, the length of the (x,y,z) vector must be 1 and x*x + y*y + z*z = 1.
   float z = sqrt( 1.0 - x*x - y*y );
@@ -60,8 +62,13 @@ void main() {
   vec2 uvColor = .5 * uv + vec2(.0, .5);
   //gl_FragColor = vec4(uv.x, uv.x, uv.x, 1.0);
   gl_FragColor = texture2D( uniTexture, uvColor );
+  // Check death date.  Because .5 seconds before the  death, the moon
+  // turns orange.  
+  if( varDeath > uniFTime ) {
+    gl_FragColor = mix(ORANGE, gl_FragColor, clamp(2.0 * (varDeath - uniFTime), .0, 1.0));
+  }
 
-  // Now, we want to compute normals to apply lighting effects.
+  // Now, we want  to compute normals to apply lighting effects.
   vec2 uvNormal = .5 * uv + vec2(.5, .0);
   vec3 normal = texture2D( uniTexture, uvNormal ).xyz;
   normal = 2.0 * ( normal - vec3(.5, .5, .5) );
@@ -84,4 +91,6 @@ void main() {
   float shadow = -light.z;
   if( shadow > 0.0 ) gl_FragColor = mix( gl_FragColor, WHITE, shadow );
   else if( shadow < 0.0 ) gl_FragColor = mix( gl_FragColor, BLACK, -shadow );
+
+  gl_FragColor.a = alpha;
 }

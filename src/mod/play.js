@@ -7,6 +7,7 @@ var G = require("global");
 var Hero = require("hero");
 var Moon = require("moon");
 var Stars = require("stars");
+var Explo = require("explo");
 var Smoke = require("smoke");
 var WebGL = require("tfw.webgl");
 var ImageLoader = require("image-loader");
@@ -75,6 +76,7 @@ exports.reset = function() {
     Moon.reset( gl );
     Smoke.reset( gl );
     Stars.reset( gl );
+    Explo.reset( gl );
 
     // Prepare texture for hero.
     var texture = gl.createTexture();
@@ -122,7 +124,7 @@ exports.draw = function( time ) {
     Moon.draw( time );
     Hero.draw( time );
     Smoke.draw( time );
-
+    Explo.draw( time );
 };
 
 

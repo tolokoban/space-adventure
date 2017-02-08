@@ -29,3 +29,8 @@ div.alert > div {
     color: #0f0;
     text-shadow: .1em .1em .1em #000;
 }
+
+div.alert p {
+    color: #eee;
+    font-size: 60%;
+}

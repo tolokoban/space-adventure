@@ -6,6 +6,7 @@ require("offline");
 var WebGL = require("tfw.webgl");
 var Alert = require("alert");
 var Play = require("play");
+var Cfg = require("$").config;
 
 var canvas = document.getElementById( "canvas" );
 var renderer = new WebGL.Renderer( canvas );
@@ -16,9 +17,10 @@ playReady.then(function() {
     Play.reset();
 
     renderer.start(function( time ) {
+        var res = window.innerHeight > 800 ? 1 : 0;
         // Managing resize.
-        var W = window.innerWidth;
-        var H = window.innerHeight;
+        var W = window.innerWidth >> res;
+        var H = window.innerHeight >> res;
         canvas.setAttribute( 'width', W );
         canvas.setAttribute( 'height', H );
         renderer.gl.viewport( 0, 0, W, H );
@@ -28,6 +30,7 @@ playReady.then(function() {
 });
 
 Alert(
-    "<html>Quick slides up and down to move your spaceship.<br/>Or use the keyboard's arrow keys.",
+    "Quick slides up and down to move your spaceship.<br/>Or use the keyboard's arrow keys."
+        + "<p>" + Cfg.version + "</p>",
     Play.start.bind( Play )
 );

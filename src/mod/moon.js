@@ -6,12 +6,16 @@
 var G = require("global");
 var Rnd = require("random");
 var Hero = require("hero");
+var Explo = require("explo");
 var Programs = require("programs");
 var ImageLoader = require("image-loader");
 
 
 // Number of attributes for an obstacle.
-var PARTICLE_SIZE = 5;
+// x, y, radius, rnd1, rnd2, death.
+// `death` is a date  in the future or 0. At this  date, the moon will
+// explode. Little before this date, the moon will turn orange.
+var PARTICLE_SIZE = 6;
 
 var gl = null;
 // Atributes of all the obstacles.
@@ -51,6 +55,7 @@ exports.reset = function( argGL ) {
         attribs[ptr++] = 0;
         attribs[ptr++] = 0;
         attribs[ptr++] = 0;
+        attribs[ptr++] = 0;
     }
 };
 
@@ -79,7 +84,10 @@ exports.draw = function( time ) {
     gl.vertexAttribPointer( prg.$attRnd1, 1, gl.FLOAT, false, size, 3 * G.BPE );
     // attRnd2
     gl.enableVertexAttribArray( prg.$attRnd2 );
-    gl.vertexAttribPointer( prg.$attRnd2, 1, gl.FLOAT, false, size, 3 * G.BPE );
+    gl.vertexAttribPointer( prg.$attRnd2, 1, gl.FLOAT, false, size, 4 * G.BPE );
+    // attDeath
+    gl.enableVertexAttribArray( prg.$attDeath );
+    gl.vertexAttribPointer( prg.$attDeath, 1, gl.FLOAT, false, size, 5 * G.BPE );
 
     // Draw this POINTS.
     gl.drawArrays( gl.POINTS, 0, G.NB_COLS );
@@ -87,6 +95,27 @@ exports.draw = function( time ) {
 
 
 exports.move = function( time ) {
+    // Check death expiration date.
+    var ptr = 0, death;
+    for( var idx=0; idx<G.NB_COLS; idx++ ) {
+        death = attribs[ptr + 5];
+        if( death > 0 && time > death ) {
+            // Display explosion.
+            Explo.newExplosion(
+                attribs[ptr],     // x
+                attribs[ptr + 1], // y
+                time,
+                attribs[ptr + 2]  // radius
+            );
+            // Moon is  dead, we must  hide it  out of the  screen and
+            // give it a null radius.
+            attribs[ptr + 1] = -10000;  // y
+            attribs[ptr + 2] = 0;       // radius
+            attribs[ptr + 5] = 0;       // reset death.
+        }
+        ptr += PARTICLE_SIZE;
+    }
+
     // While the hero is in collision status, it is invincible.
     if( Hero.isInCollision( time ) ) return;
 
@@ -118,6 +147,8 @@ exports.move = function( time ) {
         // Random values to manage moon's own rotation.
         attribs[ptr++] = Rnd();
         attribs[ptr++] = Rnd();
+        // Death date.
+        attribs[ptr++] = 0;
     }
 
     // Collision testing.
@@ -136,7 +167,7 @@ exports.move = function( time ) {
     limit = Hero.size() + attribs[ptr0 + 2];
     dis = dx*dx + dy*dy;
     if( dis < limit * limit ) {
-        Hero.collision( time, dy );
+        collision( ptr0, time, dy );
         return;
     }
 
@@ -145,7 +176,7 @@ exports.move = function( time ) {
     limit = Hero.size() + attribs[ptr1 + 2];
     dis = dx*dx + dy*dy;
     if( dis < limit * limit ) {
-        Hero.collision( time, dy );
+        collision( ptr1, time, dy );
         return;
     }
 
@@ -154,10 +185,29 @@ exports.move = function( time ) {
     limit = Hero.size() + attribs[ptr2 + 2];
     dis = dx*dx + dy*dy;
     if( dis < limit * limit ) {
-        Hero.collision( time, dy );
+        collision( ptr2, time, dy );
         return;
     }
 };
+
+
+/**
+ * Collision between moon and hero.
+ */
+function collision( ptr, time, dy ) {
+    Hero.collision( time, dy );
+    die( ptr, time );
+}
+
+
+/**
+ * Set the death date in 0.5 seconds from now.
+ * @param {integer} ptr - pointer of the moon in the attributes array.
+ * @param {double} time - current time in seconds.
+ */
+function die( ptr, time ) {
+    attribs[ptr + 5] = time + .5;
+}
 
 
 exports.makeTerrain = function( hole ) {

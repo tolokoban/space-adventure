@@ -31,8 +31,8 @@ document.addEventListener( 'touchmove', function(evt) {
     var x = t.clientX - X;
     var y = t.clientY - Y;
     if( (x > 0 ? x : -x) > (y > 0 ? y : -y) ) {
-        // This is a fire gesture. TODO...
-        return;
+        // Fire!
+        on( 0 );
     }
     var speed = (y > 0 ? y : -y) / ((Date.now() - T) * window.innerHeight);
     speed *= 1000;
