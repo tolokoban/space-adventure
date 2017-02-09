@@ -38,7 +38,7 @@ When you hit a planet, it will explode in the very next second. For this, we hav
 * __[hero.js](src/mod/hero.js)__: The hero is a picture of the [Marvin](https://en.wikipedia.org/wiki/Marvin_(character))'s head.
     * It has a little deformation while it is still to give the impression of speed.
     * It becomes red after a collision with a planet.
-* __[smoke.js](src/mod/smoke.js)__: The hero's ship produce a lot of smoke. This is usefull to give a better impression of move.
+* __[smoke.js](src/mod/smoke.js)__: The hero's ship produce a lot of smoke. This is useful to give a better impression of move.
     * This is a particle system: javascript only creates new particles, the rest is entirely managed by the GPU.
     * Smoke turns black just after a collision.
 * __[explo.js](src/mod/explo.js)__: We need an animation for planet destruction.
