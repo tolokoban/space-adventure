@@ -56,8 +56,17 @@ So if the code seems strange to you, just think about [modules in `node.js`](htt
 
 The starting module is [app.js]()scr/mod/app.js).
 
+## Test it at home
+
 Now, the best thing to do is looking at the code and modifying it to test around.
 You can get the code like this:
 ```
-git clone 
+git clone https://github.com/tolokoban/space-adventure.git
+cd space-adventure
+npm update
+```
+
+To compile it in debug mode ang get the result in the `www/` folder, type:
+```
+npm run watch
 ```
