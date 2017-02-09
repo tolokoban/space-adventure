@@ -1,6 +1,7 @@
 # space-adventure
+
 **WebGL progressive app** which installs itself on the home screen of your smartphone.
-This project is a simple game's prototype with a lot of comments and explenations.
+This project is a simple game's prototype with a lot of comments and explanations.
 
 [![Screen Shot](img/screen-shot.jpg)](https://tolokoban.github.io/space-adventure)
 
@@ -29,9 +30,9 @@ When you hit a planet, it will explode in the very next second. For this, we hav
     * No texture is used. The four pointed star shape is made mathematically.
     * All the stars field animation is fully managed by the GPU. No Javascript is used, only GLSL (shading language).
 * __[moon.js](src/mod/moon.js)__: This module deals with the planets.
-    * The planet is the Earth. Therefore, you can see the sperical mapping of the [texture](src/mod/app/earth.png).
+    * The planet is the Earth. Therefore, you can see the spherical mapping of the [texture](src/mod/app/earth.png).
     * It can rotate freely on all axis.
-    * It is enlighted to make it look as a real sphere and not just the disk that it really is.
+    * It is enlighten to make it look as a real sphere and not just the disk that it really is.
     * It has a rough surface to test [normals mapping](src/mod/app/moon.png).
     * It becomes orange when hit by the hero. The transition between initial colors and orange takes .5 seconds.
 * __[hero.js](src/mod/hero.js)__: The hero is a picture of the [Marvin](https://en.wikipedia.org/wiki/Marvin_(character))'s head.
@@ -48,7 +49,7 @@ When you hit a planet, it will explode in the very next second. For this, we hav
 
 Making WebGL games is writing garbage-collector friendly code.
 So we must avoid as much objects creation as possible.
-Ofcourse, there is a tradeoff to find between speed and code readibility.
+Ofcourse, there is a tradeoff to find between speed and code readability.
 That's why we use modules, but we do all the object creation before the animation loop starts.
 
 We also use the ToloFrameWork. Not because it is the best one around, but only because it is **our** framework ;-)
