@@ -50,6 +50,9 @@ exports.ready = new Promise(function (resolve, reject) {
 });
 
 
+/**
+ * The hero has no acceleration until this function is called.
+ */
 exports.start = function() {
     accel = ACCEL;
 };

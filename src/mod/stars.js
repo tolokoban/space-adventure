@@ -14,7 +14,7 @@ var Programs = require("programs");
 // Number of attributes in a particle.
 var PARTICLE_SIZE = 4;
 // Number of particles.
-var NB_PARTICLES = 100;
+var NB_PARTICLES = 80;
 
 
 var gl = null;

@@ -1,5 +1,8 @@
 /**
- * Display a message and wait for touch or Enter/Space key.
+ * @module alert
+ * 
+ * Display a message and wait for  touch or Enter/Space key. Then call
+ * a callback function.
  */
 
 "use strict";
@@ -48,6 +51,8 @@ function detach() {
     screen.className = 'alert';
     document.body.removeEventListener( 'keyup', onkeyup );
     document.body.removeEventListener( 'touchend', ontouchend );
+    // CSS transition takes .3 seconds.  That's why we wait .3 seconds
+    // before calling the callback function.
     window.setTimeout(function() {
         if( screen ) {
             document.body.removeChild( screen );
@@ -57,18 +62,4 @@ function detach() {
             }
         }
     }, 300);
-    // Request fullscreen mode.
-    var prefixes = [
-        'requestFullscreen', 'mozRequestFullScreen', 'webkitRequestFullscreen', 'msRequestFullscreen'
-    ];
-    while( prefixes.length > 0 ) {
-        var name = prefixes.shift();
-        console.info("[app] name=...", name);
-        var fct = document.documentElement[name];
-        console.info("[app] fct=...", fct);
-        if( fct ) {
-            fct();
-            break;
-        }
-    }
 }

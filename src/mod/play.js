@@ -1,5 +1,7 @@
 /**
- * This singleton manages the main scene, where the hero is trying to avoi asteroids.
+ * @module play
+ * 
+ * This singleton manages the main scene, where the hero is trying to avoid planets.
  */
 "use strict";
 
@@ -14,29 +16,25 @@ var ImageLoader = require("image-loader");
 var EventHandler = require("event-handler");
 
 
-//========================= Constants.
-
-// Vertical acceleration in space's pixels per second.
-var GRAVITY = 1600;
-// Hardware size of a Float32.
-var BPE = new Float32Array().BYTES_PER_ELEMENT;
-// Square root of 2. We compute it only one time.
-var SQRT2 = Math.sqrt( 2 );
-
-
 //========================= Variables.
 
 // WebGL context.
 var gl;
 // Canvas. Used to get display width and height.
 var canvas;
-
+// We use only one  texture slot in WebGL. It is  a 512x512 image made
+// with three  256x256 images.  The canvas  is used  to put  the three
+// images.
 var canvasForTextures;
 // Using the time of the previous frame to know the time delta.
 var lastTime = 0;
 
 //========================= init().
 
+/**
+ * Return  a promise  that will  be fulfilled  after loading  of three
+ * images used for the hero and the planets.
+ */
 exports.init = function( argGl, argCanvas ) {
     lastTime = 0;
     gl = argGl;
@@ -47,14 +45,14 @@ exports.init = function( argGl, argCanvas ) {
             moon: "moon.png",
             earth: "earth.png"
         }).then(function(data) {
-            var canvas = document.createElement( "canvas" );
-            canvas.setAttribute( "width", 512 );
-            canvas.setAttribute( "height", 512 );
-            var ctx = canvas.getContext( "2d" );
+            // Canvas for the only texture we use: a 512x512 image.
+            canvasForTextures = document.createElement( "canvas" );
+            canvasForTextures.setAttribute( "width", 512 );
+            canvasForTextures.setAttribute( "height", 512 );
+            var ctx = canvasForTextures.getContext( "2d" );
             ctx.drawImage( data.hero, 0, 0, 256, 256 );
             ctx.drawImage( data.moon, 256, 0, 256, 256 );
             ctx.drawImage( data.earth, 0, 256, 256, 256 );
-            canvasForTextures = canvas;
             resolve();
         });
     });
@@ -63,6 +61,9 @@ exports.init = function( argGl, argCanvas ) {
 
 //========================= start().
 
+/**
+ * The hero has no acceleration until this function is called.
+ */
 exports.start = function() {
     Hero.start();
 };
