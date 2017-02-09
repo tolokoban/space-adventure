@@ -54,4 +54,10 @@ That's why we use modules, but we do all the object creation before the animatio
 We also use the ToloFrameWork. Not because it is the best one around, but only because it is **our** framework ;-)
 So if the code seems strange to you, just think about [modules in `node.js`](https://nodejs.org/api/modules.html).
 
+The starting module is [app.js]()scr/mod/app.js).
 
+Now, the best thing to do is looking at the code and modifying it to test around.
+You can get the code like this:
+```
+git clone 
+```
