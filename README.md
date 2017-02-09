@@ -2,7 +2,7 @@
 **WebGL progressive app** which installs itself on the home screen of your smartphone.
 This project is a simple game's prototype with a lot of comments and explenations.
 
-[!screen-shot.jpg](https://tolokoban.github.io/space-adventure)
+[![Screen Shot](img/screen-shot.jpg)](https://tolokoban.github.io/space-adventure)
 
 You can test it by clicking on the above picture.
 
