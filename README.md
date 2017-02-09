@@ -71,3 +71,9 @@ To compile it in debug mode ang get the result in the `www/` folder, type:
 ```
 npm run watch
 ```
+
+If you want to test the service worker, you need to serve pages with __https__. Moreover, you must compile in release mode because only in this mode you can get all the javascript in just one file: `js/@index.js`. It is simpler for the cache to have less files.
+Here is the command to compile in release mode:
+```
+npm run release
+```
