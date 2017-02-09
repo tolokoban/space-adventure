@@ -51,6 +51,7 @@ So we must avoid as much objects creation as possible.
 Ofcourse, there is a tradeoff to find between speed and code readibility.
 That's why we use modules, but we do all the object creation before the animation loop starts.
 
-
+We also use the ToloFrameWork. Not because it is the best one around, but only because it is **our** framework ;-)
+So if the code seems strange to you, just think about [modules in `node.js`](https://nodejs.org/api/modules.html).
 
 
