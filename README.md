@@ -32,7 +32,11 @@ When you hit a planet, it will explode in the very next second. For this, we hav
     * It is enlighted to make it look as a real sphere and not just the disk that it really is.
     * It has a rough surface to test [normals mapping](src/mod/app/moon.png).
     * It becomes orange when hit by the hero. The transition between initial colors and orange takes .5 seconds.
-* __[stars.js](src/mod/stars.js)__:
+* __[stars.js](src/mod/stars.js)__: In the background we can see a stars field.
+    * Each star rotates and moves horizontally.
+    * The more the star is far, the more it moves slowly and the more it looks smaller and darker.
+    * No texture is used. The four pointed star shape is made mathematically.
+    * All the stars field animation is fully managed by the GPU. No Javascript is used, only GLSL (shading language).
 * __[explo.js](src/mod/explo.js)__:
 * __[smoke.js](src/mod/smoke.js)__:
 
