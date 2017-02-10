@@ -12,6 +12,7 @@ varying float varBirth;
 void main() {
   float age = uniVTime - attPos.z;
   if( age > 1.0 ) {
+    // After 1 second, explosion must not been drawn.
     gl_PointSize = 0.0;
     return;
   }
@@ -19,7 +20,7 @@ void main() {
   // Propagate random to the fragment shader.
   varBirth = attPos.z;
   
-  // Point's size...
+  // Point's size... Depending on age.
   gl_PointSize = pointSize( attPos.w * (1.0 + 2.0 * age) );
 
   // Game's space coords.

@@ -20,7 +20,31 @@ varying float varRnd1;
 varying float varRnd2;
 varying float varDeath;
 
-
+/**
+ * To perform a sphare mapping, we must figure out (u,v) coords on the texture
+ * from (x,y) from the PointCoord. We also must consider rotations of the sphere.
+ * Step 1:
+ *   Consider the hemi-sphere, and find out the vector (x,y,z).
+ *   We already know x and y, and we also know that (x,y,z) have a length of 1.
+ *   Hence, x*x + y*y + z*z = 1 and we can deduce z.
+ * Step 2:
+ *   Apply sphere rotation. This is a combination of two rotations: one around X axe
+ *   and another one around Y axe.
+ *   For instance, around X, we have:
+ *     Y = y*cos(a) + z*sin(a)
+ *     Z = -y*sin(a) + z*cos(a)
+ *   The rotation formula are simple to memorize because the second expression
+ *   can be deduced by derivation of the first one.
+ * Step 3:
+ *   Now we consider (X,Y). With asin(Y) we get the latitude between -PI/2 and +PI/2.
+ *   The plane y=Y cuts the sphere in a disk of radius cos(lat). Hence, we get longitude
+ *   by computing asin(X / cos(lat)).
+ * Step 4:
+ *   Of course, the longitude you get is between -PI/2 and +PI/2, but it is only valid
+ *   if Z is positive. If Z is negative, you want to get a longitude between +PI/2 and
+ *   +3.PI/2. And while for Z positive longitude increase with X, on Z negative it is reversed.
+ * 
+ */
 void main() {
   // Vector (x,y,z) has its tail at the center of the sphere and its head on the surface of the sphere.
   float x = gl_PointCoord.x * 2.0 - 1.0;
