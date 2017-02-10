@@ -10,6 +10,9 @@ var Explo = require("explo");
 var Programs = require("programs");
 var ImageLoader = require("image-loader");
 
+// Vibration function depending on the browser.
+var vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || function(){};
+
 
 // Number of attributes for an obstacle.
 // x, y, radius, rnd1, rnd2, death.
@@ -112,6 +115,7 @@ exports.move = function( time ) {
             attribs[ptr + 1] = -10000;  // y
             attribs[ptr + 2] = 0;       // radius
             attribs[ptr + 5] = 0;       // reset death.
+            vibrate(200);
         }
         ptr += PARTICLE_SIZE;
     }

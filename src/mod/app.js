@@ -55,3 +55,12 @@ Alert(
     // Call `Play.start()` as soon as the message has vanished (after a user touch).
     Play.start.bind( Play )
 );
+
+// Try to force the screen to be in landscape mode.
+var lock = screen.lockOrientationUniversal
+        || screen.mozLockOrientationUniversal
+        || screen.msLockOrientationUniversal;
+if( lock ) {
+    console.log("Trying to lock the screen in landscape mode.");
+    lock("landscape-primary");
+}
