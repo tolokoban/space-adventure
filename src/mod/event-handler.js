@@ -9,7 +9,7 @@ module.exports = {
     stop: function() { start = false; }
 };
 
-document.addEventListener( 'keyup', function(evt) {
+document.addEventListener( 'keydown', function(evt) {
     if( !start ) return;
     if( evt.keyCode == 38 ) {
         on( +1 );
