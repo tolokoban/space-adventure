@@ -21,7 +21,7 @@ varying float varRnd2;
 varying float varDeath;
 
 /**
- * To perform a sphare mapping, we must figure out (u,v) coords on the texture
+ * To perform a sphere mapping, we must figure out (u,v) coords on the texture
  * from (x,y) from the PointCoord. We also must consider rotations of the sphere.
  * Step 1:
  *   Consider the hemi-sphere, and find out the vector (x,y,z).
