@@ -9,12 +9,13 @@
     "homepage": "https://github.com/tolokoban/space-adventure",
     "license": "GPL-3.0",
     "scripts": {
-        "test": "node node_modules/karma/bin/karma start karma.conf.js",
-        "test:dbg": "node --debug-brk node_modules/karma/bin/karma start karma.conf.js",
-        "debug": "node node_modules/toloframework/bin/tfw.js build debug test php",
-        "watch": "node node_modules/toloframework/bin/tfw.js build debug test php watch",
         "clean": "node node_modules/toloframework/bin/tfw.js clean",
-        "release": "node node_modules/toloframework/bin/tfw.js build version php clean"
+        "debug": "node node_modules/toloframework/bin/tfw.js build debug test php",
+        "deploy": "gh-pages -d www",
+        "release": "node node_modules/toloframework/bin/tfw.js build version php clean",
+        "test:dbg": "node --debug-brk node_modules/karma/bin/karma start karma.conf.js",
+        "test": "node node_modules/karma/bin/karma start karma.conf.js",
+        "watch": "node node_modules/toloframework/bin/tfw.js build debug test php watch"
     },
     "bugs": {
         "url": "https://github.com/tolokoban/space-adventure/issues"
@@ -30,7 +31,7 @@
         },
         "output": "www"
     },
-    "version": "0.0.49",
+    "version": "1.0.0",
     "reservedModules": [],
     "dependencies": {
         "jasmine-core": "^2.4",
@@ -39,5 +40,8 @@
         "karma-firefox-launcher": "^0.1",
         "karma-jasmine": "^0.3.6",
         "toloframework": "^0.39"
+    },
+    "devDependencies": {
+        "gh-pages": "^3.2.3"
     }
 }
